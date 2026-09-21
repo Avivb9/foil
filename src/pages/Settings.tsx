@@ -76,6 +76,7 @@ function Section({ title, description, children, footer }: { title: string; desc
 function ProfileTab() {
   const profile = useApp((s) => s.profile);
   const setProfile = useApp((s) => s.setProfile);
+  const workspaceName = useApp((s) => s.workspaceName);
   const [form, setForm] = useState(profile);
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const dirty = JSON.stringify(form) !== JSON.stringify(profile);
@@ -110,7 +111,7 @@ function ProfileTab() {
         <div>
           <p className="font-semibold">{form.name || 'Your name'}</p>
           <p className="text-sm text-sand-500">
-            {form.title} · Admin in Northbeam
+            {form.title} · Admin in {workspaceName}
           </p>
         </div>
       </div>
@@ -422,7 +423,7 @@ function ScoringTab() {
           </>
         }
       >
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_280px]">
           <div className="space-y-5">
             {COMPONENT_KEYS.map((k) => (
               <div key={k}>
@@ -595,13 +596,14 @@ function NotificationsTab() {
 function BillingTab() {
   const members = useApp((s) => s.members);
   const reports = useApp((s) => s.reports);
+  const customCount = useApp((s) => s.personas.filter((p) => p.custom).length);
   const [plansOpen, setPlansOpen] = useState(false);
   const [invoice, setInvoice] = useState<(typeof INVOICES)[number] | null>(null);
   const seats = members.length;
   const usage = [
     { label: 'Spar runs this month', used: 38, limit: 100 },
     { label: 'Seats', used: seats, limit: 10 },
-    { label: 'Custom personas', used: 0, limit: 10 },
+    { label: 'Custom personas', used: customCount, limit: 10 },
   ];
   return (
     <>

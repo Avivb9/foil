@@ -404,6 +404,15 @@ function Workspace({ spar }: { spar: Spar }) {
             </div>
           </section>
 
+          {/* Compact preview for tablet, where the right rail drops below the results */}
+          <div className="card flex items-start gap-4 p-5 lg:hidden">
+            <ScoreRing score={displayScore?.overall ?? live.overall} size={84} label={false} />
+            <div className="min-w-0 flex-1">
+              <p className="label mb-1.5">{displayScore ? 'Spar score · statement' : 'Live estimate · statement'}</p>
+              <StatementPreview company={spar.company} fields={draft} size="md" />
+            </div>
+          </div>
+
           {/* Results */}
           <section ref={resultsRef} className="scroll-mt-4">
             <Tabs

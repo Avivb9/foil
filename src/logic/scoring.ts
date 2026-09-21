@@ -111,18 +111,20 @@ export function properNouns(text: string): string[] {
   const clean = stripPlaceholders(text);
   const tokens = clean.split(/\s+/);
   const out = new Set<string>();
+  // Known vendors first, so "NetSuite’s native AP module" yields NetSuite, not AP.
+  for (const v of KNOWN_VENDORS) {
+    const m = clean.match(new RegExp(`(?<![a-z])${escapeRe(v)}(?![a-z])`, 'i'));
+    if (m) out.add(m[0]);
+  }
   tokens.forEach((t, i) => {
     const w = t.replace(/[^A-Za-z0-9.&-]/g, '');
     if (!w || w.length < 2) return;
-    if (/^[A-Z][A-Za-z0-9.&-]*$/.test(w) && (i > 0 || KNOWN_VENDORS.includes(w.toLowerCase())) && !/^(I|A|An|The|And|Or|Unlike|Built|Tier(-\d)?)$/.test(w)) {
+    if (/^[A-Z][A-Za-z0-9.&-]*$/.test(w) && (i > 0 || KNOWN_VENDORS.includes(w.toLowerCase())) && !/^(I|A|An|The|And|Or|Unlike|Built|Tier(-\d)?)$/.test(w) &&
+      !/^[A-Z]{2,4}s?$/.test(w) // short acronyms (AP, SOC, PO) are domain terms, not vendors
+    ) {
       out.add(w);
     }
   });
-  for (const v of KNOWN_VENDORS) {
-    const re = new RegExp(`(?<![a-z])${v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![a-z])`, 'i');
-    const m = clean.match(re);
-    if (m) out.add(m[0]);
-  }
   return [...out];
 }
 
@@ -163,7 +165,9 @@ function scoreTarget(t: string, k: Strictness): ComponentScore {
   if (stack.length) l.add(12, `Describes their environment (“${stack[0]}”)`);
   else if (wordCount(clean) >= 9 && /\b(who|running|using|with|that)\b/i.test(clean)) l.add(8, 'Describes the buyer’s situation');
 
-  const vague = matchedTokens(clean, VAGUE_TARGET);
+  // "companies" is only vague when nothing qualifies it (no size, no industry)
+  const qualified = SIZE_PATTERNS.some((re) => re.test(clean)) || ind.length > 0;
+  const vague = matchedTokens(clean, VAGUE_TARGET).filter((v) => !qualified || /all sizes|everyone|anyone|everywhere/.test(v));
   if (vague.length) l.add(-22, `“${vague[0]}” describes everyone, which means no one`);
   if (wordCount(clean) < 3 && !countPlaceholders(t)) l.add(-10, 'Too short to picture a real buyer');
   buzzPenalty(l, t, 8);

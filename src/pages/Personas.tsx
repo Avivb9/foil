@@ -124,7 +124,7 @@ export default function Personas() {
                     {p.name}
                     {p.custom && <Badge tone="violet">Custom</Badge>}
                   </p>
-                  <p className="truncate text-[13px] text-sand-500">{p.role}</p>
+                  <p className="line-clamp-2 text-[13px] text-sand-500">{p.role}</p>
                 </div>
                 <Toggle checked={p.enabled} onChange={() => onToggle(p)} label={`${p.name} on the panel`} />
               </div>

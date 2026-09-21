@@ -92,7 +92,8 @@ function rewriteTarget(t: string, changes: Change[]): string {
   }
   let out = applyRules(t, 'target', changes);
   const vagueRe = /\b(organi[sz]ations|businesses|companies|enterprises|users|customers|everyone|anyone)(\s+of\s+all\s+sizes)?\b/i;
-  const vm = out.match(vagueRe);
+  const qualified = /\d|mid-market|enterprise|smb|startup|series [a-d]|fintech|saas|healthcare|bank|retail|logistics|trucking|manufactur|insurance/i.test(out);
+  const vm = /of\s+all\s+sizes|everyone|anyone/i.test(out) || !qualified ? out.match(vagueRe) : null;
   if (vm) {
     out = out.replace(vagueRe, '[company size] [industry] companies');
     changes.push({ component: 'target', note: `Replaced “${vm[0]}” with a segment you could build an account list from.` });

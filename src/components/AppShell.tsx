@@ -234,7 +234,7 @@ function Topbar() {
           trigger={({ toggle, open }) => (
             <button onClick={toggle} aria-expanded={open} aria-label="User menu" className="flex items-center gap-2 rounded-lg p-1 pr-2 transition hover:bg-sand-200/60">
               <Avatar name={profile.name} size={28} color="#c2410c" />
-              <span className="hidden text-left leading-tight md:block">
+              <span className="hidden text-left leading-tight lg:block">
                 <span className="block text-[13px] font-semibold text-sand-900">{profile.name}</span>
                 <span className="block text-[11px] text-sand-500">{profile.title}</span>
               </span>

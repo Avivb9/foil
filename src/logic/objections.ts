@@ -59,7 +59,7 @@ function firstAlternative(f: Fields): string {
 
 function soften(text: string, ctx: Ctx, sev: Severity): string {
   if (ctx.mode === 'friendly' && sev !== 'minor') return `${pick(['Honestly, ', 'Candidly, ', 'Gently: '], ctx.seed + ctx.persona.id)}${text.charAt(0).toLowerCase()}${text.slice(1)}`;
-  if (ctx.mode === 'brutal' && sev !== 'minor') return `${text} ${pick(['Next.', 'Hard pass.', 'I’d walk.', 'Try again.'], ctx.seed + ctx.persona.id)}`;
+  if (ctx.mode === 'brutal' && sev === 'dealbreaker') return `${text} ${pick(['Next.', 'Hard pass.', 'I’d walk.', 'Try again.'], ctx.seed + ctx.persona.id)}`;
   return text;
 }
 
@@ -118,7 +118,7 @@ const LENS_TEMPLATES: Record<Lens, (ctx: Ctx) => { draft: Draft; score: number }
       objection = `${quote} tells me what improves, not what it saves me or when I break even. What’s the payback in months?`;
       fix = 'Convert the outcome into dollars or headcount and add a payback period.';
     } else {
-      gut = 'This I can model. It’s a line I can put in a spreadsheet.';
+      gut = severityFor(score, ctx.mode) === 'minor' ? 'This I can model. It’s a line I can put in a spreadsheet.' : 'I can almost model this. Almost.';
       objection = `My only remaining question is risk. If the rollout stalls at month three, what happens to ${quote}? Put a pilot or an exit clause next to the proof.`;
       fix = 'Pair the proof with a de-risking offer: a scoped pilot, a success metric, or an exit clause.';
     }
@@ -181,7 +181,7 @@ const LENS_TEMPLATES: Record<Lens, (ctx: Ctx) => { draft: Draft; score: number }
       objection = `${quote} works on what data, from which systems? If I can’t see the integration list, I assume it’s a six-month services project.`;
       fix = 'Name the systems it reads from and writes to, and how long setup takes.';
     } else {
-      gut = 'Clear enough to scope.';
+      gut = severityFor(score, ctx.mode) === 'minor' ? 'Clear enough to scope.' : 'Clear enough to scope. Not yet clear enough to buy.';
       objection = `I’d want the ${integrations[0]} integration docs and a data-flow diagram before the second call, but ${quote} is specific enough that I can evaluate it.`;
       fix = 'Link the integration docs and a security overview from the first-call deck.';
     }
@@ -247,7 +247,13 @@ const LENS_TEMPLATES: Record<Lens, (ctx: Ctx) => { draft: Draft; score: number }
       fix = 'Choose an existing category and win a sub-segment of it before trying to create a new one.';
     } else if (known) {
       const peers = (KNOWN_CATEGORIES.find((k) => k.label === known.label)?.peers ?? []).join(', ');
-      gut = score >= 70 ? `Clean. You belong in the ${known.label} box.` : `You’re in the ${known.label} box, whether you meant it or not.`;
+      const sev = severityFor(score, ctx.mode);
+      gut =
+        sev === 'minor'
+          ? `Clean. You belong in the ${known.label} box.`
+          : sev === 'serious'
+            ? `You’re in the ${known.label} box. Now prove you win there.`
+            : `You’re in the ${known.label} box, whether you meant it or not.`;
       objection = `That puts you next to ${peers}. Where’s the evidence you win there? ${hasNumber(f.value) ? 'Your number helps, but I need to know how it was measured.' : 'I don’t see a single number I could cite.'}`;
       fix = hasNumber(f.value)
         ? 'Publish how the headline number was measured and add a named customer I can call.'
@@ -280,8 +286,7 @@ const LENS_TEMPLATES: Record<Lens, (ctx: Ctx) => { draft: Draft; score: number }
     const all = `${f.category} ${f.unique} ${f.value}`;
     const sup = matchedTokens(all, SUPERLATIVES);
     const unprovenNumber = hasNumber(f.value) && !/(customer|median|average|across|verified|case study|benchmark|audited)/i.test(f.value);
-    let score = 85 - sup.length * 22 - (unprovenNumber ? 25 : 0) - s.buzzwords.length * 4;
-    score = Math.max(0, Math.min(100, score));
+    const score = sup.length ? Math.max(0, 45 - sup.length * 15 - s.buzzwords.length * 3) : unprovenNumber ? 55 : 92;
     let gut: string;
     let objection: string;
     let quote: string;
