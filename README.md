@@ -2,11 +2,11 @@
 
 **Attack your positioning before the market does.**
 
-Foil is a working SaaS prototype for product marketers. You enter a positioning statement as April Dunford's five components. Five buyer-side personas attack it, Foil scores it with a transparent model, explains the weak spots and rewrites it.
+Foil pressure-tests product positioning for product marketers, founders and product leaders. You enter a positioning statement as April Dunford's five components. Five buyer-side personas attack it, Foil scores it with a transparent model, explains the weak spots and rewrites it.
 
-It's a portfolio project by [Aviv Braun](https://avivbraun.com), a B2B Product Marketing Manager, built with Claude Code.
+Designed and built by [Aviv Braun](https://avivbraun.com).
 
-> It runs entirely in the browser: no backend, no API keys, no model calls. Everything that looks like thinking is deterministic, rule-based logic run on your own text. The scores, diffs and objections are computed live from what you type, and the generated copy quotes your own words back.
+> This demo version runs entirely in the browser with a sample workspace (Northbeam): no backend, no accounts, no API keys. Scoring, objections and rewrites are deterministic, rule-based logic run on your own text. The scores, diffs and objections are computed live from what you type, and the generated copy quotes your own words back.
 
 ---
 
@@ -96,9 +96,9 @@ State is stored in `localStorage` (key `foil-workspace-v1`), wrapped in try/catc
 
 ---
 
-## 60-second walkthrough (for a recording)
+## 60-second product tour
 
-Before recording, open **Settings → Workspace → Reset workspace data** and open a fresh tab so the intro shows.
+To start from a clean workspace, open **Settings → Workspace → Reset workspace data**, then open a fresh tab so the intro shows.
 
 | Time | Click | What to say or show |
 |---|---|---|

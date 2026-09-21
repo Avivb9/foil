@@ -69,7 +69,7 @@ export function CommandPalette() {
       { id: 'strong', group: 'Actions', label: 'Open Kestrel with the strong example', icon: <Sparkles className="h-4 w-4" />, keywords: 'load example sample', run: go('/spars/kestrel?example=strong') },
       { id: 'weights', group: 'Actions', label: 'Adjust scoring weights', icon: <SlidersHorizontal className="h-4 w-4" />, keywords: 'settings scoring', run: go('/settings/scoring') },
       { id: 'invite', group: 'Actions', label: 'Invite a teammate', icon: <Users className="h-4 w-4" />, keywords: 'member workspace', run: go('/settings/workspace?invite=1') },
-      { id: 'about', group: 'Actions', label: 'About this project', icon: <BookOpen className="h-4 w-4" />, keywords: 'intro portfolio', run: openIntro },
+      { id: 'about', group: 'Actions', label: 'About Foil', icon: <BookOpen className="h-4 w-4" />, keywords: 'intro help overview', run: openIntro },
       { id: 'keys', group: 'Actions', label: 'Keyboard shortcuts', icon: <Keyboard className="h-4 w-4" />, run: () => setShortcuts(true) },
       { id: 'nav-spars', group: 'Go to', label: 'Spars', icon: <LayoutList className="h-4 w-4" />, hint: 'G S', run: go('/') },
       { id: 'nav-personas', group: 'Go to', label: 'Personas', icon: <Users className="h-4 w-4" />, hint: 'G P', run: go('/personas') },

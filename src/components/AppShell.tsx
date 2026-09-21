@@ -159,11 +159,11 @@ function Sidebar() {
         </NavLink>
         <button
           onClick={openIntro}
-          title="About this project"
+          title="About Foil"
           className="flex h-9 w-full items-center justify-center gap-3 rounded-lg px-2.5 text-[13px] text-sand-400 transition hover:bg-white/[0.04] hover:text-sand-100 lg:justify-start"
         >
           <BookOpen className="h-4 w-4" />
-          <span className="hidden lg:block">About this project</span>
+          <span className="hidden lg:block">About Foil</span>
         </button>
       </div>
     </aside>
@@ -244,7 +244,7 @@ function Topbar() {
             { label: 'Profile', icon: <CircleUser className="h-4 w-4" />, onSelect: () => nav('/settings/profile') },
             { label: 'Settings', icon: <Settings className="h-4 w-4" />, onSelect: () => nav('/settings/workspace') },
             { label: 'Keyboard shortcuts', icon: <Keyboard className="h-4 w-4" />, hint: '?', onSelect: () => setShortcuts(true) },
-            { label: 'About this project', icon: <BookOpen className="h-4 w-4" />, onSelect: openIntro },
+            { label: 'About Foil', icon: <BookOpen className="h-4 w-4" />, onSelect: openIntro },
             { divider: true, label: '' },
             { label: 'Sign out', icon: <LogOut className="h-4 w-4" />, onSelect: () => nav('/signin') },
           ]}

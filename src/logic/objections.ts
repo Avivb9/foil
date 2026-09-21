@@ -103,7 +103,7 @@ const LENS_TEMPLATES: Record<Lens, (ctx: Ctx) => { draft: Draft; score: number }
     let fix: string;
     if (!v.trim() || (!num && !countPlaceholders(v))) {
       gut = pick([`I stopped reading at ${quote}. There isn’t a number in here I could take to my CEO.`, `Nice words. Where’s the number?`], ctx.seed);
-      objection = `You say ${quote}. Compared to what, measured how? I approve spend against a payback period, and this gives me nothing to calculate.`;
+      objection = `You say ${quote}. Compared to what, and by whose count? I approve spend against a payback period, and this gives me nothing to calculate.`;
       fix = 'Add one quantified outcome with its source, e.g. “cuts X from A to B (median across N customers)”, plus a payback estimate.';
     } else if (!num) {
       gut = 'You’ve left a slot for the number. That’s honest. It’s also not something I can approve yet.';
@@ -254,9 +254,9 @@ const LENS_TEMPLATES: Record<Lens, (ctx: Ctx) => { draft: Draft; score: number }
           : sev === 'serious'
             ? `You’re in the ${known.label} box. Now prove you win there.`
             : `You’re in the ${known.label} box, whether you meant it or not.`;
-      objection = `That puts you next to ${peers}. Where’s the evidence you win there? ${hasNumber(f.value) ? 'Your number helps, but I need to know how it was measured.' : 'I don’t see a single number I could cite.'}`;
+      objection = `That puts you next to ${peers}. Where’s the evidence you win there? ${hasNumber(f.value) ? 'Your number helps, but I need to know how it was calculated.' : 'I don’t see a single number I could cite.'}`;
       fix = hasNumber(f.value)
-        ? 'Publish how the headline number was measured and add a named customer I can call.'
+        ? 'Publish the method behind the headline number and add a named customer I can call.'
         : `Add one proof point that beats ${peers.split(',')[0]} on a metric buyers already compare.`;
     } else {
       const sup = matchedTokens(f.category, SUPERLATIVES);
