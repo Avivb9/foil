@@ -63,6 +63,11 @@ function soften(text: string, ctx: Ctx, sev: Severity): string {
   return text;
 }
 
+/** Seconds to say a line on a cold call: ~140 wpm, plus the half-second stumble every buzzword costs. */
+export function readAloudSeconds(line: string): number {
+  return Math.max(2, Math.round(wordCount(line) / 2.3 + findBuzzwords(line).length * 0.5));
+}
+
 /** Lowercases the first letter unless the word is an acronym (keeps “AI”, “SOC”). */
 function speakable(s: string): string {
   return s.replace(/^([A-Z])(?![A-Z])/, (c) => c.toLowerCase());
@@ -136,7 +141,7 @@ const LENS_TEMPLATES: Record<Lens, (ctx: Ctx) => { draft: Draft; score: number }
       objection =
         overlap >= 0.25
           ? `Half of ${quote} is our own language. I’ll just nod and tell your prospect “we do that too,” and they’ll believe me because it’s literally the same words.`
-          : `${quote}. I say that on every call too. I’ll tell your prospect we’ve done that for years and send them our analyst report. You won’t get a second meeting.`;
+          : `You wrote ${quote}. I say that on every call too. I’ll tell your prospect we’ve done that for years and send them our analyst report. You won’t get a second meeting.`;
     } else if (sev === 'serious') {
       gut = pick([`I can blur this. Give me one call.`, `There’s something here, but I can still say “we do that too.”`], ctx.seed);
       objection = `${quote} is closer. But you haven’t said why ${alt} can’t do it. Until you name what we structurally can’t copy, I’ll position it as a feature we’ll ship next quarter.`;
@@ -185,10 +190,8 @@ const LENS_TEMPLATES: Record<Lens, (ctx: Ctx) => { draft: Draft; score: number }
 
   clarity: (ctx) => {
     const { s, lead, company, f } = ctx;
-    const wc = wordCount(lead);
     const leadBuzz = findBuzzwords(lead);
-    // cold-call pace (~140 wpm), plus the half-second stumble every buzzword costs
-    const secs = Math.max(2, Math.round(wc / 2.3 + leadBuzz.length * 0.5));
+    const secs = readAloudSeconds(lead);
     let score = Math.round((s.components.target.score + s.components.category.score + s.components.value.score) / 3) + s.readability.adjustment * 2;
     if (secs > 8) score -= (secs - 8) * 3;
     score -= leadBuzz.length * 6;

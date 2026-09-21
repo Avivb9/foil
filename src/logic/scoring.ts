@@ -354,3 +354,8 @@ export const COMPONENT_SHORT: Record<ComponentKey, string> = {
   target: 'Target',
   category: 'Category',
 };
+
+/** Scores a saved run or version. */
+export function scoreSnapshot(s: { company: string; fields: Fields; mode: PressureMode }, weights: Weights = DEFAULT_WEIGHTS): ScoreResult {
+  return scorePositioning(s.company, s.fields, s.mode, weights);
+}

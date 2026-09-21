@@ -76,7 +76,7 @@ interface AppState {
   duplicateSpar: (id: string) => string | null;
   deleteSpar: (id: string) => void;
   recordRun: (id: string, run: RunSnapshot) => void;
-  saveVersion: (id: string, label: string) => RunSnapshot | null;
+  saveVersion: (id: string, label: string, snapshot: Omit<RunSnapshot, 'id' | 'at' | 'label'>) => RunSnapshot | null;
   restoreVersion: (id: string, versionId: string) => void;
 
   togglePersona: (id: string) => void;
@@ -191,11 +191,10 @@ export const useApp = create<AppState>()(
           spars: s.spars.map((sp) => (sp.id === id ? { ...sp, lastRun: run, updatedAt: run.at } : sp)),
         })),
 
-      saveVersion: (id, label) => {
+      saveVersion: (id, label, snapshot) => {
         const sp = get().spars.find((s) => s.id === id);
         if (!sp) return null;
-        const base = sp.lastRun ?? { id: '', at: now(), fields: sp.draft, company: sp.company, mode: sp.mode, personaIds: [] };
-        const v: RunSnapshot = { ...base, id: uid('v'), at: now(), label, fields: { ...base.fields } };
+        const v: RunSnapshot = { ...snapshot, id: uid('v'), at: now(), label, fields: { ...snapshot.fields } };
         set((s) => ({
           spars: s.spars.map((x) => (x.id === id ? { ...x, versions: [...x.versions, v], updatedAt: now() } : x)),
         }));
