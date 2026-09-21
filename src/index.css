@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-[#f6f2ea] text-sand-900 font-sans;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+  }
+  ::selection {
+    @apply bg-ember-200 text-sand-900;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-ember-500 ring-offset-2 ring-offset-[#f6f2ea];
+  }
+  button:focus-visible,
+  a:focus-visible {
+    @apply rounded-md;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-sand-200/90 bg-[#fffdf9] shadow-card;
+  }
+  .label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-sand-500;
+  }
+  .input {
+    @apply w-full rounded-lg border border-sand-200 bg-white px-3 py-2 text-sm text-sand-900 placeholder:text-sand-400 transition
+      focus:border-ember-400 focus:outline-none focus:ring-4 focus:ring-ember-100;
+  }
+  .input-error {
+    @apply border-red-400 focus:border-red-400 focus:ring-red-100;
+  }
+  .kbd {
+    @apply inline-flex h-5 min-w-[20px] items-center justify-center rounded border border-sand-200 bg-sand-50 px-1 font-mono text-[10px] font-medium text-sand-500;
+  }
+  .display {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    letter-spacing: -0.02em;
+  }
+  .grain {
+    background-image: radial-gradient(rgba(34, 30, 25, 0.06) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}
+
+/* thin scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #dcd2c1 transparent;
+}
+
+.hl-buzz {
+  background: linear-gradient(transparent 58%, rgba(244, 84, 18, 0.28) 58%);
+  border-radius: 2px;
+}
+.hl-placeholder {
+  @apply rounded bg-amber-100 px-0.5 text-amber-900;
+}
+
+.caret::after {
+  content: '▍';
+  @apply ml-0.5 animate-blink text-ember-500;
+}
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  body {
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-full {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .card {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  main {
+    overflow: visible !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
