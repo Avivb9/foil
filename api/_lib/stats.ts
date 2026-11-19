@@ -45,3 +45,13 @@ export function mode<T>(xs: T[]): T | undefined {
   for (const x of xs) c.set(x, (c.get(x) ?? 0) + 1);
   return [...c.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
 }
+
+/** Cohen's kappa: agreement between two raters on the same items, corrected for chance. */
+export function cohenKappa<T>(a: T[], b: T[]): number {
+  const n = Math.min(a.length, b.length);
+  if (!n) return 0;
+  const cats = [...new Set([...a, ...b])];
+  const po = agreement(a, b);
+  const pe = cats.reduce((s, c) => s + (a.filter((x) => x === c).length / n) * (b.filter((x) => x === c).length / n), 0);
+  return pe === 1 ? 1 : (po - pe) / (1 - pe);
+}

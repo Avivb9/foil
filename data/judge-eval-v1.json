@@ -1,0 +1,62 @@
+{
+  "experiment": "judge-v1",
+  "snapshot": "product-analytics-eu-series-b@2026-11-19-b69092a140",
+  "judgePrompt": "judge-v0.1",
+  "exportedAt": "2026-11-19T19:55:00Z",
+  "referenceLabeller": "claude (Claude Opus 5.5, labelled strictly from the same excerpts; one-line reason per item; had seen Gemini's answers before labelling)",
+  "legend": "judges: item=letter per repeat (m met, n not_met, u unclear; * = model's met/not_met had no valid quote and was downgraded to unclear)",
+  "labels": {
+    "PostHog:M1": ["met", "\"Select your cloud US (Virginia) EU (Frankfurt)\""],
+    "PostHog:M2": ["met", "\"Product Managers Dig into funnels, retention, and paths\"; \"without waiting on a data team\""],
+    "PostHog:M3": ["unclear", "Mentions its own warehouse/sources; nothing about Snowflake or querying the buyer's warehouse"],
+    "PostHog:D1": ["met", "\"set billing limits on most products so you never get a surprise bill\""],
+    "PostHog:P1": ["unclear", "Mentions HIPAA BAA, SSO, audit logs; no SOC 2"],
+    "PostHog:P2": ["met", "\"Platform packages SSO, audit logs, custom roles\""],
+    "PostHog:P3": ["met", "\"Session replay 5K recordings\" in free allowance"],
+    "PostHog:P4": ["met", "\"Experiments Billed with feature flags\"; \"No-code A/B Testing\""],
+    "PostHog:P5": ["met", "\"Can I use PostHog completely free forever? Yes\""],
+    "PostHog:P6": ["unclear", "No export or API mention in these excerpts"],
+    "Mixpanel:M1": ["unclear", "No hosting region mentioned"],
+    "Mixpanel:M2": ["met", "\"Insights, funnels, retention, & flows reports\" (non-technical use implied, not stated)"],
+    "Mixpanel:M3": ["not_met", "Connectors \"bring warehouse data into Mixpanel\" and count toward the event limit: a second copy"],
+    "Mixpanel:D1": ["unclear", "Volume-tiered pricing with annual savings; no caps or limits shown either way"],
+    "Mixpanel:P1": ["unclear", "No excerpts"],
+    "Mixpanel:P2": ["unclear", "Excerpts are about MCP/Headless, not SSO"],
+    "Mixpanel:P3": ["met", "\"Session replays 10k monthly sessions\""],
+    "Mixpanel:P4": ["met", "\"designing, running, and analyzing tests and rollouts\""],
+    "Mixpanel:P5": ["met", "\"Free Plan ... Start Free ... Up to 1M\""],
+    "Mixpanel:P6": ["met", "\"Ingestion & export API access\"; \"Query API access\""],
+    "Amplitude:M1": ["met", "\"EU data center option\" in plan comparison"],
+    "Amplitude:M2": ["met", "\"Get fast answers to any growth question without coding\"; \"Compare funnels\""],
+    "Amplitude:M3": ["unclear", "No warehouse or Snowflake mention"],
+    "Amplitude:D1": ["unclear", "\"scales with your event volume\"; real-time usage tracking but no caps shown"],
+    "Amplitude:P1": ["unclear", "\"compliance features\" on Enterprise; SOC 2 not named"],
+    "Amplitude:P2": ["met", "\"SSO and project-level permissions\""],
+    "Amplitude:P3": ["met", "\"Session Replay for web and mobile\"; free plan includes session replay"],
+    "Amplitude:P4": ["met", "\"A/B/n testing\"; \"Run, scale, and analyze targeted experiments\""],
+    "Amplitude:P5": ["met", "\"a free plan with no time limit\""],
+    "Amplitude:P6": ["met", "\"Developer SDKs and APIs\"; \"User Profile API\""]
+  },
+  "humanLabels": { "Amplitude:D1": "met" },
+  "keywordBaseline": {
+    "PostHog:M1": "met", "PostHog:M2": "met", "PostHog:M3": "met", "PostHog:D1": "met", "PostHog:P1": "met",
+    "PostHog:P2": "met", "PostHog:P3": "met", "PostHog:P4": "met", "PostHog:P5": "met", "PostHog:P6": "met",
+    "Mixpanel:M1": "met", "Mixpanel:M2": "met", "Mixpanel:M3": "met", "Mixpanel:D1": "met", "Mixpanel:P1": "unclear",
+    "Mixpanel:P2": "unclear", "Mixpanel:P3": "met", "Mixpanel:P4": "met", "Mixpanel:P5": "met", "Mixpanel:P6": "met",
+    "Amplitude:M1": "met", "Amplitude:M2": "met", "Amplitude:M3": "unclear", "Amplitude:D1": "met", "Amplitude:P1": "met",
+    "Amplitude:P2": "met", "Amplitude:P3": "met", "Amplitude:P4": "met", "Amplitude:P5": "met", "Amplitude:P6": "met"
+  },
+  "judges": {
+    "gemini": [
+      "PostHog:M1=m PostHog:M2=m PostHog:M3=u PostHog:D1=u PostHog:P1=u PostHog:P2=m PostHog:P3=m PostHog:P4=m PostHog:P5=m PostHog:P6=u",
+      "Mixpanel:M1=u Mixpanel:M2=m Mixpanel:M3=u Mixpanel:D1=n Mixpanel:P1=u Mixpanel:P2=u Mixpanel:P3=m Mixpanel:P4=m Mixpanel:P5=m Mixpanel:P6=m",
+      "Amplitude:M1=m Amplitude:M2=m Amplitude:M3=u Amplitude:D1=n Amplitude:P1=m Amplitude:P2=m Amplitude:P3=m Amplitude:P4=m Amplitude:P5=m Amplitude:P6=m",
+      "PostHog:M1=m PostHog:M2=m PostHog:M3=u PostHog:D1=u PostHog:P1=u PostHog:P2=m PostHog:P3=m PostHog:P4=m PostHog:P5=m PostHog:P6=u",
+      "Mixpanel:M1=u Mixpanel:M2=m Mixpanel:M3=u Mixpanel:D1=n Mixpanel:P1=u Mixpanel:P2=u Mixpanel:P3=m Mixpanel:P4=m Mixpanel:P5=m Mixpanel:P6=m",
+      "Amplitude:M1=m Amplitude:M2=m Amplitude:M3=u Amplitude:D1=n Amplitude:P1=u Amplitude:P2=m Amplitude:P3=m Amplitude:P4=m Amplitude:P5=m Amplitude:P6=m",
+      "PostHog:M1=m PostHog:M2=m PostHog:M3=u PostHog:D1=m PostHog:P1=u PostHog:P2=m PostHog:P3=m PostHog:P4=m PostHog:P5=m PostHog:P6=u",
+      "Mixpanel:M1=u Mixpanel:M2=m Mixpanel:M3=n Mixpanel:D1=n Mixpanel:P1=u Mixpanel:P2=u Mixpanel:P3=m Mixpanel:P4=m Mixpanel:P5=m Mixpanel:P6=m",
+      "Amplitude:M1=m Amplitude:M2=m Amplitude:M3=u Amplitude:D1=n Amplitude:P1=u Amplitude:P2=m Amplitude:P3=m Amplitude:P4=m Amplitude:P5=m Amplitude:P6=m"
+    ]
+  }
+}

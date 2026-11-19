@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { AgentRun, CheckedRequirement, DealBrief, RoleKey, Verdict } from '../api/_lib/agent';
 import { decide, eligibleFor, roleVote, tallyDecision } from '../api/_lib/committee';
 import { buildPacks } from '../api/_lib/evidence';
-import { twoProportion, wilson } from '../api/_lib/stats';
+import { cohenKappa, twoProportion, wilson } from '../api/_lib/stats';
 
 const brief: DealBrief = {
   id: 't',
@@ -116,6 +116,13 @@ describe('evidence packs', () => {
 });
 
 describe('stats', () => {
+  it('cohen kappa: perfect, chance-level and textbook cases', () => {
+    expect(cohenKappa(['a', 'b', 'a'], ['a', 'b', 'a'])).toBe(1);
+    // 20 yes/yes, 5 yes/no, 10 no/yes, 15 no/no -> kappa 0.4
+    const a = [...Array(25).fill('y'), ...Array(25).fill('n')];
+    const b = [...Array(20).fill('y'), ...Array(5).fill('n'), ...Array(10).fill('y'), ...Array(15).fill('n')];
+    expect(cohenKappa(a, b)).toBeCloseTo(0.4, 5);
+  });
   it('wilson interval brackets the estimate', () => {
     const w = wilson(7, 20);
     expect(w.p).toBeCloseTo(0.35);
