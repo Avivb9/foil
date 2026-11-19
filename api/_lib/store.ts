@@ -22,3 +22,4 @@ export const saveRun = (body: unknown) => rpc<{ ok: boolean; id: number }>('foil
 export const getSnapshot = <T>(snapshotId: string) => rpc<T | null>('foil_get_snapshot', { snapshot_id: snapshotId });
 export const countRuns = (experiment: string, provider: string) =>
   rpc<number>('foil_count_runs', { p_experiment: experiment, p_provider: provider });
+export const saveBypass = (value: string) => rpc<{ ok: boolean }>('foil_ingest', { kind: 'config', body: { key: 'vercel_bypass', value } });
