@@ -4,7 +4,7 @@ import type { Vendor } from '../_lib/agent.js';
 import { DEMO_SNAPSHOT_ID } from '../_lib/demo-deal.js';
 import { buildEvalItems, EVAL_REQUIREMENTS, keywordVerdict } from '../_lib/evalset.js';
 import { devOnly } from '../_lib/guard.js';
-import { getLabels, getSnapshot } from '../_lib/store.js';
+import { getLabels, getReferenceLabels, getSnapshot } from '../_lib/store.js';
 
 export async function GET(request: Request): Promise<Response> {
   const blocked = devOnly();
@@ -21,5 +21,6 @@ export async function GET(request: Request): Promise<Response> {
       labels,
     });
   }
-  return Response.json({ snapshot: DEMO_SNAPSHOT_ID, items, labels });
+  const reference = await getReferenceLabels();
+  return Response.json({ snapshot: DEMO_SNAPSHOT_ID, items, labels, reference });
 }

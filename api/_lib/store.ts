@@ -26,3 +26,5 @@ export const saveBypass = (value: string) => rpc<{ ok: boolean }>('foil_ingest',
 export const saveLabel = (item: string, label: string, note: string | null) =>
   rpc<{ ok: boolean }>('foil_label', { p_item: item, p_label: label, p_note: note });
 export const getLabels = () => rpc<Record<string, { label: string; note: string | null }>>('foil_get_labels', {});
+export const getReferenceLabels = () =>
+  rpc<Record<string, { label: string; note: string | null }>>('foil_get_reference_labels', {});

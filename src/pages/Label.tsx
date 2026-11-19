@@ -24,6 +24,7 @@ function seededOrder<T extends { id: string }>(xs: T[]): T[] {
 export default function LabelPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [labels, setLabels] = useState<Record<string, { label: Label; note: string | null }>>({});
+  const [reference, setReference] = useState<Record<string, { label: Label; note: string | null }>>({});
   const [i, setI] = useState(0);
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
@@ -36,6 +37,7 @@ export default function LabelPage() {
         const ordered = seededOrder(d.items as Item[]);
         setItems(ordered);
         setLabels(d.labels ?? {});
+        setReference(d.reference ?? {});
         const firstOpen = ordered.findIndex((it) => !d.labels?.[it.id]);
         setI(firstOpen === -1 ? 0 : firstOpen);
       })
@@ -77,12 +79,13 @@ export default function LabelPage() {
       if ((e.target as HTMLElement)?.tagName === 'TEXTAREA') return;
       const opt = OPTIONS.find((o) => o.key === e.key);
       if (opt) save(opt.value);
+      if ((e.key === 'a' || e.key === 'Enter') && item && reference[item.id]) save(reference[item.id].label);
       if (e.key === 'ArrowLeft') setI((x) => Math.max(0, x - 1));
       if (e.key === 'ArrowRight') setI((x) => Math.min(items.length - 1, x + 1));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [save, items.length]);
+  }, [save, items.length, item, reference]);
 
   if (error && !items.length) return <div className="p-10 text-rose-700">{error}</div>;
   if (!item) return <div className="p-10 text-neutral-500">Loading…</div>;
@@ -95,7 +98,7 @@ export default function LabelPage() {
       <div className="mx-auto max-w-3xl px-5 py-8">
         <header className="mb-6">
           <div className="flex items-baseline justify-between">
-            <h1 className="font-display text-2xl">Foil · judge calibration</h1>
+            <h1 className="font-display text-2xl">Foil · review the answer key</h1>
             <span className="font-mono text-sm text-neutral-500">
               {done}/{items.length} labelled
             </span>
@@ -104,7 +107,7 @@ export default function LabelPage() {
             <div className="h-1.5 rounded bg-ember-500 transition-all" style={{ width: `${(done / items.length) * 100}%` }} />
           </div>
           <p className="mt-3 text-sm text-neutral-600">
-            Judge <b>only from the excerpts below</b>, not from what you know about the product. Keys: <kbd>1</kbd> met · <kbd>2</kbd> not met · <kbd>3</kbd> unclear · <kbd>←</kbd>/<kbd>→</kbd> move.
+            Each card has a suggested answer. If you agree, press <kbd>A</kbd> (or Enter). If not, pick the right one: <kbd>1</kbd> met · <kbd>2</kbd> not met · <kbd>3</kbd> unclear. Judge <b>only from the excerpts</b>, not from what you know about the product.
           </p>
           {allDone && (
             <p className="mt-3 rounded border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -131,7 +134,24 @@ export default function LabelPage() {
             ))}
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {reference[item.id] && (
+            <div className="mt-6 flex items-start justify-between gap-4 rounded-lg border border-neutral-300 bg-neutral-100 p-4">
+              <div>
+                <div className="font-mono text-[11px] uppercase tracking-wide text-neutral-500">Suggested answer</div>
+                <div className="mt-0.5 font-medium">{OPTIONS.find((o) => o.value === reference[item.id].label)?.label}</div>
+                {reference[item.id].note && <div className="mt-1 text-sm text-neutral-600">{reference[item.id].note}</div>}
+              </div>
+              <button
+                onClick={() => save(reference[item.id].label)}
+                disabled={saving}
+                className="shrink-0 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700"
+              >
+                <kbd className="mr-1.5 rounded bg-white/20 px-1 font-mono text-xs">A</kbd>Agree
+              </button>
+            </div>
+          )}
+          <div className="mt-3 text-xs text-neutral-500">Or choose a different answer:</div>
+          <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {OPTIONS.map((o) => (
               <button
                 key={o.value}
