@@ -1,121 +1,95 @@
 # Foil
 
-**Attack your positioning before the market does.**
+**Put your website in front of a buying committee of AI agents. See who blocks the deal, and which sentence changes their mind.**
 
-Foil pressure-tests product positioning for product marketers, founders and product leaders. You enter a positioning statement as April Dunford's five components. Five buyer-side personas attack it, Foil scores it with a transparent model, explains the weak spots and rewrites it.
+Foil simulates a B2B buying committee with five role agents (economic buyer, technical evaluator, champion, procurement, security & legal). Each agent reads a frozen copy of competing vendors' pages and judges every requirement, quoting the page. Code verifies every quote and code decides the deal. Every finding is repeated until it's statistically clear. Then you edit one paragraph and measure whether the committee moves.
 
-Designed and built by [Aviv Braun](https://avivbraun.com).
-
-> This demo version runs entirely in the browser with a sample workspace (Northbeam): no backend, no accounts, no API keys. Scoring, objections and rewrites are deterministic, rule-based logic run on your own text. The scores, diffs and objections are computed live from what you type, and the generated copy quotes your own words back.
+**Live results:** [foil /lab](https://foil-seven.vercel.app/lab) · **Built by** [Aviv Braun](https://avivbraun.com/?utm_source=github&utm_medium=readme&utm_campaign=foil&utm_content=byline), product marketer
 
 ---
 
-## Run it locally
+## The headline result
 
-Requires Node 18+.
+A Series B in Berlin choosing product analytics (PostHog, Mixpanel, Amplitude), with requirements owned by different committee members.
+
+1. **On public pages alone, nobody wins.** 100% of 20 committees end in "no decision". What blocks every vendor is proof of two things: *works with our warehouse* and *predictable pricing*. That's a messaging gap, not a product gap.
+2. **One paragraph flipped a stakeholder.** Adding a short warehouse-proof paragraph to PostHog's pricing page took the technical evaluator's block from **80% to 0%** (p < 0.001) and tripled committee support (1.0 → 3.1 of 5).
+3. **Another paragraph backfired.** The pricing-proof paragraph made procurement *more* likely to block (70% → 94%, p = 0.05). The deal still stalls on one objection.
+4. **The experiment is clean.** Vendors that weren't edited didn't move (placebo check).
+
+Details: [docs/M4-RESULTS.md](docs/M4-RESULTS.md) · [docs/AB-POSTHOG-PROOF.md](docs/AB-POSTHOG-PROOF.md)
+
+## Can you trust it? Evals
+
+| What we measured | Result |
+|---|---|
+| AI judge vs. a PMM's answer key (30 items) | **87% agreement, κ 0.73** (keyword baseline: 77%, κ 0.37) |
+| Same verdict across repeated runs | 90% of items |
+| Quotes that exist verbatim on the page | Gemini 99% · gpt-oss-120b 89% |
+| Agents contradicting their own verdicts | Gemini 2% · gpt-oss-120b 38% (p < 0.0001) |
+
+Contradictions never change an outcome, because the decision is computed by code from per-requirement verdicts, not from what the model says it prefers.
+
+Details: [docs/JUDGE-EVAL.md](docs/JUDGE-EVAL.md) · [docs/BASELINE-REPORT.md](docs/BASELINE-REPORT.md) · [docs/M2-RESULTS.md](docs/M2-RESULTS.md) · [docs/M3-RESULTS.md](docs/M3-RESULTS.md)
+
+## How it works
+
+```mermaid
+flowchart LR
+  A[Vendor pages] -->|snapshot + sha256| B[(Frozen snapshot)]
+  B --> C[Evidence packs<br/>BM25, per role,<br/>coverage-first]
+  C --> D1[Economic buyer]
+  C --> D2[Technical evaluator]
+  C --> D3[Champion]
+  C --> D4[Procurement]
+  C --> D5[Security & legal]
+  D1 & D2 & D3 & D4 & D5 --> E[Quote check<br/>exact string match]
+  E --> F[Committee rule<br/>owners block · roles vote ·<br/>no_decision is a candidate ·<br/>economic-buyer veto]
+  F --> G[(Runs)]
+  G --> H[Reports<br/>Wilson CIs · two-proportion tests ·<br/>placebo check · judge vs PMM]
+```
+
+1. **Freeze.** Every vendor page is captured once with a fingerprint. Every run reads identical text, so an edit is a controlled experiment.
+2. **Retrieve.** Per-role evidence packs (BM25, coverage-first): each agent sees the passages relevant to what it owns. Same evidence for every model.
+3. **Judge.** Each role agent rates every vendor on every requirement: met, not met or unclear, with a quote.
+4. **Verify.** Every quote is string-matched against the full page. A "met" without a real quote is downgraded to "unclear".
+5. **Decide.** By code: requirement owners block ("unclear" isn't good enough for the owner), roles vote, "no decision" is a candidate, and the economic buyer can veto. Because the rule is a pure function, stored runs can be re-scored for free when the rule changes. That happened once: v1 let a vendor "win" with 1 of 5 votes.
+6. **Measure.** Repeated runs across two model families, Wilson intervals, two-proportion tests, a placebo check and a judge scored against a PMM.
+
+## Engineering notes
+
+- **$0 to run.** Gemini and Groq free tiers; Supabase and Vercel free plans. Prompts were cut from ~15K to ~3–4K tokens by evidence packs, which also made Groq's 8K tokens/minute limit workable.
+- **Unattended experiments.** Supabase `pg_cron` calls a quota-safe batch endpoint every 5 minutes (agents one at a time, at most 2 tries, then back off) until each experiment hits its target. It survives hours of `503 high demand` from free-tier models.
+- **Reproducible.** The served model version is recorded per call (aliases drift). Every number in `docs/` is regenerated from `data/` by a script.
+- **Locked-down storage.** Working data lives in an isolated Postgres schema, reachable only through secret-checked `SECURITY DEFINER` functions.
+- **Tested.** 30 unit tests: quote verification, retrieval coverage, committee rules, statistics (including a textbook κ case) and page variants.
+
+## Repo layout
+
+```
+api/_lib/      agents, providers, evidence packs, citations, committee, stats, variants
+api/dev/       experiment endpoints (disabled in production)
+data/          exported runs and the PMM answer key
+docs/          spec, milestone results, generated reports
+scripts/       report generators (re-run to reproduce every number)
+src/pages/Lab  the public results page
+tests/         unit tests
+```
+
+## Reproduce the numbers
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173
+npm test
+npx tsx scripts/report.ts data/baseline-v1.json docs/BASELINE-REPORT.md
+npx tsx scripts/judge-report.ts data/judge-eval-v1.json docs/JUDGE-EVAL.md
+npx tsx scripts/ab-report.ts data/ab-posthog-proof-v1.json docs/AB-POSTHOG-PROOF.md
+npx tsx scripts/build-lab-data.ts
 ```
 
-Other scripts:
+## Limits
 
-```bash
-npm run build        # tsc --noEmit + production build to dist/
-npm run preview      # serve the production build
-npm run typecheck    # tsc --noEmit only
-```
-
-## Deploy to Vercel
-
-`vercel.json` already contains the SPA rewrite (every path serves `index.html`), so deep links like `/spars/kestrel` and `/share/ldg-7f3k2q` work.
-
-```bash
-npm i -g vercel
-vercel login
-vercel --prod
-```
-
-Accept the detected Vite settings (build `npm run build`, output `dist`).
-
----
-
-## Architecture
-
-```
-src/
-  logic/        Pure functions, no React
-    types.ts        Domain types: Fields, Persona, Objection, ScoreResult, Spar, Report
-    text.ts         Tokenising, buzzword matching, quotable phrase extraction, hashing
-    compose.ts      Builds the statement from the five components (as colour-coded segments)
-    scoring.ts      0–100 per component + weighted overall + readability adjustment
-    objections.ts   Lens templates: one objection per persona, quoting the user's text
-    rewrite.ts      Rule-based rewrite: strips buzzwords, adds specificity, marks [gaps]
-    diff.ts         Word-level LCS diff for the before/after view
-    markdown.ts     Report → markdown export
-    format.ts       Dates and relative time
-  data/         Seed data and all copy
-    intro.ts        Every word of the intro overlay
-    lexicon.ts      Buzzwords, role/size/industry tokens, 40+ known categories with peers
-    personas.ts     The five default personas and the seven lenses
-    examples.ts     Weak / okay / strong Kestrel examples + field help text
-    seed.ts         Five spars with version history, reports, members, notifications
-  store/
-    app.ts          Zustand store, persisted to localStorage through a try/catch wrapper
-    ui.ts           Toasts, intro (sessionStorage), command palette
-  components/   App shell, intro, command palette, UI primitives, spar widgets
-  pages/        Spars, New spar, Spar workspace, Personas, Reports, Report, Shared report, Settings, Sign-in
-```
-
-**Stack:** Vite, React 18, TypeScript (strict), Tailwind CSS, React Router, Zustand, Recharts, Framer Motion, lucide-react. Fonts: Inter for UI, Fraunces for display.
-
-### How scoring works
-
-Each component starts from a base score, and every rule adds or subtracts points into a visible ledger. Open any bar on the Scorecard tab to see the ledger.
-
-| Component | Rewards | Penalises |
-|---|---|---|
-| Target customer | buyer role, company size/stage, industry, tech environment | "organizations", "businesses", "all sizes" when unqualified |
-| Competitive alternatives | a named vendor, the status quo (spreadsheets, hiring), more than one | "legacy tools", "the competition" |
-| Unique attributes | a mechanism ("by…", "using your own…"), integrations, checkable specifics | generic claims (AI, faster, easier), overlap with the alternatives text |
-| Value and proof | a number, a quantified outcome, a proof source, cost/payback | "efficiency", "better outcomes", "save time" |
-| Market category | a known category box (40+ with named peers), 2–5 words | superlatives ("leading"), made-up categories |
-
-All components pay a buzzword tax (`leading`, `AI-powered`, `end-to-end`, `seamless`, `platform`, `empower`…). The overall score is the weighted average (default weights 20/20/25/20/15, editable in **Settings → Scoring**) plus a readability adjustment. **Pressure mode** scales strictness: Friendly applies penalties at 0.7×, Brutal at 1.4× with bonuses at 0.9×. A soft floor keeps very weak text distinguishable from merely weak text.
-
-Placeholders like `[metric]` earn half credit, so the rewrite's structure is rewarded but only real specifics earn full marks.
-
-### How the panel works
-
-Each persona has a **lens** (Budget, Differentiation, Technical depth, Clarity, Category/evidence, Procurement, Legal). The lens decides which component the persona attacks and which templates they use. Severity (Minor / Serious / Deal-breaker) comes from that component's score against mode-specific thresholds. Custom personas plug into the same lens templates.
-
-### Persistence
-
-State is stored in `localStorage` (key `foil-workspace-v1`), wrapped in try/catch so private windows still work in memory. The intro's dismissed state is kept in `sessionStorage`, so it shows once per session. Seeded reports have fixed share slugs, so their `/share/…` links work in any browser. Reports you create are shareable within the same browser, since there's no server.
-
----
-
-## 60-second product tour
-
-To start from a clean workspace, open **Settings → Workspace → Reset workspace data**, then open a fresh tab so the intro shows.
-
-| Time | Click | What to say or show |
-|---|---|---|
-| 0:00 | Intro overlay. Scroll once through the problem, 3 steps and metrics, then **Start exploring** | "Most positioning dies on the first sales call." |
-| 0:07 | **Spars** list | Real computed scores, trend sparklines, open deal-breakers |
-| 0:10 | Click **Kestrel** | The buzzword statement. Flagged words under each field, score around 11 |
-| 0:15 | **Start spar** | "Convening your panel…", then the cards stream in |
-| 0:20 | Let Dana, Marcus ("So you're basically 'legacy tools' with a new label") and Tyler's botched cold call play. Click **Show all now** | Every objection quotes my own words |
-| 0:32 | **Fix with a rewrite** | Diff: struck buzzwords, highlighted specifics, amber `[gaps]`. Projected score 11 → 58 |
-| 0:38 | **Apply rewrite** → **Re-run spar** | Score ring animates, +47 delta, deal-breakers drop to zero |
-| 0:45 | Under *Target customer* click **3 gaps to fill** and type over the first gap, e.g. `SOC leads` | Live estimate climbs as you type |
-| 0:50 | **Save as version** → **History** tab | Score-trend sparkline |
-| 0:54 | **⋯ → Create report** → **Share link** → **Preview as a viewer** | Read-only shared report |
-| 0:58 | Press **Ctrl/⌘ K** | "Everything's one keystroke away." |
-
-Optional extras: **Load example → Sales-call ready** (scores about 90), **Personas → Add persona** (a Procurement lens joins the next spar), **Settings → Scoring** (drag a weight and watch every spar re-score in the preview).
-
-## Keyboard shortcuts
-
-`Ctrl/⌘ K` command palette · `/` search · `N` new spar · `G` then `S`/`P`/`R` go to Spars/Personas/Reports · `Ctrl/⌘ Enter` start spar · `?` all shortcuts · `Esc` closes the intro, modals and menus.
+- A rehearsal, not ground truth. Real buyers also read reviews, ask peers and talk to sales.
+- One deal, three vendors, two pages each. Agents read text excerpts, not full sites.
+- Free-tier models, about 20 runs per condition: only large effects reach significance.
+- The edited copy in the experiment is hypothetical and says nothing about the vendors' actual products.

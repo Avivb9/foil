@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
 import { IntroOverlay } from './components/IntroOverlay';
 import { Toaster } from './components/Toaster';
+import Lab from './pages/Lab';
 import Label from './pages/Label';
 import NewSpar from './pages/NewSpar';
 import NotFound from './pages/NotFound';
@@ -34,8 +35,9 @@ export default function App() {
         <Route path="share/:slug" element={<SharedReport />} />
         <Route path="signin" element={<SignIn />} />
         <Route path="label" element={<Label />} />
+        <Route path="lab" element={<Lab />} />
       </Routes>
-      {!pathname.startsWith('/label') && <IntroOverlay />}
+      {!pathname.startsWith('/label') && !pathname.startsWith('/lab') && <IntroOverlay />}
       <Toaster />
     </>
   );
