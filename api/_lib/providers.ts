@@ -93,6 +93,9 @@ async function callGroq(c: ModelCall): Promise<ModelResult> {
       model,
       temperature: c.temperature ?? 1,
       response_format: { type: 'json_object' },
+      max_completion_tokens: 3000,
+      // gpt-oss reasons before answering; reasoning tokens count against the 8K TPM free limit
+      ...(model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
       messages: [
         { role: 'system', content: c.system },
         { role: 'user', content: c.user },
