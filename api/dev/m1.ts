@@ -6,7 +6,7 @@ import { devOnly } from '../_lib/guard.js';
 import { ProviderError, type Provider } from '../_lib/providers.js';
 import { snapshotPage } from '../_lib/snapshot.js';
 
-export const config = { maxDuration: 60 };
+export const config = { maxDuration: 300 };
 
 export async function GET(request: Request): Promise<Response> {
   const blocked = devOnly();

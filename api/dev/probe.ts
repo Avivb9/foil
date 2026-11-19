@@ -3,7 +3,9 @@
 import { devOnly } from '../_lib/guard.js';
 import { callModel, DEFAULT_MODELS, ProviderError, type Provider } from '../_lib/providers.js';
 
-export async function GET(): Promise<Response> {
+export const config = { maxDuration: 60 };
+
+export async function GET(request: Request): Promise<Response> {
   const blocked = devOnly();
   if (blocked) return blocked;
 
@@ -22,6 +24,25 @@ export async function GET(): Promise<Response> {
     } catch (e) {
       out.geminiModels = `error: ${(e as Error).message}`;
     }
+  }
+
+  // ?models=a,b,c probes extra Gemini models with one tiny call each
+  const extra = (new URL(request.url).searchParams.get('models') || '').split(',').filter(Boolean);
+  if (extra.length) {
+    out.models = Object.fromEntries(
+      await Promise.all(
+        extra.map(async (model) => {
+          try {
+            const r = await callModel({ provider: 'gemini', model, system: 'Reply with JSON only.', user: 'Return {"ok":true}', temperature: 0 });
+            return [model, { ok: true, latencyMs: r.latencyMs }];
+          } catch (e) {
+            const pe = e as ProviderError;
+            return [model, { ok: false, status: pe.status, body: pe.body?.slice(0, 300) }];
+          }
+        }),
+      ),
+    );
+    return Response.json(out);
   }
 
   for (const provider of ['gemini', 'groq'] as Provider[]) {
