@@ -26,6 +26,18 @@ export async function GET(request: Request): Promise<Response> {
     }
   }
 
+  if (process.env.GROQ_API_KEY) {
+    try {
+      const r = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+      });
+      const j = await r.json();
+      out.groqModels = (j.data ?? []).map((m: { id: string }) => m.id);
+    } catch (e) {
+      out.groqModels = `error: ${(e as Error).message}`;
+    }
+  }
+
   // ?models=a,b,c probes extra Gemini models with one tiny call each
   const extra = (new URL(request.url).searchParams.get('models') || '').split(',').filter(Boolean);
   if (extra.length) {

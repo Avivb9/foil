@@ -24,7 +24,7 @@ export interface ModelResult {
 
 export const DEFAULT_MODELS: Record<Provider, string> = {
   gemini: process.env.FOIL_GEMINI_MODEL || 'gemini-3.5-flash-lite',
-  groq: process.env.FOIL_GROQ_MODEL || 'llama-3.3-70b-versatile',
+  groq: process.env.FOIL_GROQ_MODEL || 'openai/gpt-oss-120b',
 };
 
 export class ProviderError extends Error {
