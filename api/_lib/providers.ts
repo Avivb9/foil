@@ -137,7 +137,9 @@ export async function callModel(c: ModelCall, maxAttempts = 6): Promise<ModelRes
     } catch (e) {
       lastErr = e;
       const pe = e as ProviderError;
-      if (!(pe instanceof ProviderError) || !RETRYABLE.has(pe.status) || attempt === maxAttempts) throw e;
+      // Groq returns 400 json_validate_failed when the model emits malformed JSON: worth one more try.
+      const retryable = pe instanceof ProviderError && (RETRYABLE.has(pe.status) || (pe.status === 400 && pe.body.includes('json_validate_failed')));
+      if (!retryable || attempt === maxAttempts) throw e;
       const retryAfter = Number(pe.body.match(/"retryDelay":\s*"(\d+)s"/)?.[1] ?? NaN);
       const wait = Number.isFinite(retryAfter) ? retryAfter * 1000 : 3000 * 2 ** (attempt - 1);
       await sleep(Math.min(wait, 30_000) + Math.random() * 1500);

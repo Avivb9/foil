@@ -167,13 +167,14 @@ export async function runAgent(opts: {
   model?: string;
   apiKey?: string;
   charsPerVendor?: number;
+  maxAttempts?: number;
 }): Promise<AgentRun> {
   const packs = buildPacks(opts.vendors, queriesFor(opts.role, opts.brief), {
     charsPerVendor: opts.charsPerVendor ?? 4200,
   });
   const names = opts.vendors.map((v) => v.name);
   const { system, user, evidenceChars } = buildPrompt(opts.role, opts.brief, names, packs);
-  const res = await callModel({ provider: opts.provider, model: opts.model, system, user, apiKey: opts.apiKey });
+  const res = await callModel({ provider: opts.provider, model: opts.model, system, user, apiKey: opts.apiKey }, opts.maxAttempts);
   const raw = parseJson<RawMemo>(res.text);
 
   // quotes are checked against the FULL page text, not just the pack

@@ -52,18 +52,22 @@ export async function GET(request: Request): Promise<Response> {
   const t0 = Date.now();
   const summary: unknown[] = [];
   const errors: string[] = [];
-  const pace = PACING[provider];
+  // Scheduled runs are gentle: agents one at a time, at most 2 tries each, so an
+  // overloaded API costs a couple of requests, not thirty. The next tick retries.
+  const gentle = target !== null;
+  const pace = gentle ? { parallel: false, gapMs: provider === 'groq' ? 30_000 : 5_000 } : PACING[provider];
+  const maxAttempts = gentle ? 2 : undefined;
 
   for (let i = 0; i < n2; i++) {
     // estimate whether another full run fits in the budget
-    const perRun = pace.parallel ? pace.gapMs : pace.gapMs * ROLE_KEYS.length;
+    const perRun = pace.parallel ? pace.gapMs : Math.max(pace.gapMs, 12_000) * ROLE_KEYS.length;
     if (Date.now() - t0 + perRun > BUDGET_MS) break;
 
     const runStart = Date.now();
     let agents: AgentRun[] = [];
     try {
       const one = (role: (typeof ROLE_KEYS)[number]) =>
-        runAgent({ role, brief: DEMO_BRIEF, vendors: snap.vendors, provider, model, charsPerVendor });
+        runAgent({ role, brief: DEMO_BRIEF, vendors: snap.vendors, provider, model, charsPerVendor, maxAttempts });
       if (pace.parallel) {
         // stagger starts so five calls do not hit the API in the same instant
         agents = await Promise.all(ROLE_KEYS.map((role, k) => sleep(k * 1500).then(() => one(role))));
@@ -76,7 +80,8 @@ export async function GET(request: Request): Promise<Response> {
         }
       }
     } catch (e) {
-      errors.push((e as Error).message.slice(0, 300));
+      const pe = e as Error & { body?: string };
+      errors.push(`${pe.message}${pe.body ? ': ' + pe.body.slice(0, 300) : ''}`);
       break; // stop the batch on hard errors; partial committees are not stored
     }
 
