@@ -23,7 +23,7 @@ export async function GET(request: Request): Promise<Response> {
   );
   const snapshotMs = Date.now() - t0;
   const snapshotSummary = vendors.flatMap((v) =>
-    v.pages.map((p) => ({ vendor: v.name, url: p.url, status: p.status, chars: p.chars, sha256: p.sha256.slice(0, 12), error: p.error })),
+    v.pages.map((p) => ({ vendor: v.name, url: p.url, status: p.status, chars: p.chars, fullChars: p.fullChars, truncated: p.truncated, sha256: p.sha256.slice(0, 12), error: p.error })),
   );
   if (q.get('snapshotOnly')) return Response.json({ snapshotMs, snapshotSummary, sample: vendors[0].pages[0].text.slice(0, 1500) });
 

@@ -2,7 +2,7 @@ import { checkQuote, normalisedPages, type CitationCheck } from './citations.js'
 import { callModel, parseJson, type ModelResult, type Provider } from './providers.js';
 import type { PageSnapshot } from './snapshot.js';
 
-export const PROMPT_VERSION = 'committee-v0.1';
+export const PROMPT_VERSION = 'committee-v0.2';
 
 export type RoleKey = 'economic_buyer' | 'technical_evaluator' | 'champion' | 'procurement' | 'security_legal';
 
@@ -91,7 +91,7 @@ export interface AgentRun {
       concerns: CheckedPoint[];
     })[];
   };
-  citationStats: { total: number; verified: number; notFound: number; tooShort: number; missingProofFlags: number };
+  citationStats: { total: number; verified: number; verifiedSegments: number; notFound: number; tooShort: number; missingProofFlags: number };
   trace: Pick<ModelResult, 'inputTokens' | 'outputTokens' | 'latencyMs' | 'rateLimit'>;
 }
 
@@ -102,7 +102,7 @@ function renderSources(vendors: Vendor[]): string {
         `=== VENDOR: ${v.name} ===\n` +
         v.pages
           .filter((p) => p.text)
-          .map((p) => `--- PAGE ${p.url} ---\n${p.text}`)
+          .map((p) => `--- PAGE ${p.url}${p.truncated ? ' (page text was cut at the length limit; absence of a fact here is not proof it is absent from the site)' : ''} ---\n${p.text}`)
           .join('\n\n'),
     )
     .join('\n\n');
@@ -115,7 +115,7 @@ ${r.mandate}
 
 You are evaluating vendors ONLY from the page text provided. You know nothing else about them.
 Rules:
-- Every strength must include a "quote": a verbatim excerpt (8-40 words) copied exactly from the page text, plus the page "url" it came from. No paraphrase inside "quote".
+- Every strength must include a "quote": a verbatim excerpt (8-40 words) copied exactly from the page text, plus the page "url" it came from. No paraphrase inside "quote", and do not join separate fragments with "...": use one continuous excerpt.
 - A concern can have a quote, or set "quote": null and "missingProof": true when the pages simply do not show evidence you need.
 - If no vendor clears your bar, or the evidence is too thin, vote "no_decision". Staying with the status quo is a legitimate outcome; do not pick a vendor just to pick one.
 - "blocker": a hard requirement a vendor fails or cannot evidence, or null.
@@ -152,7 +152,7 @@ export async function runAgent(opts: {
 
   const allPages = opts.vendors.flatMap((v) => v.pages.filter((p) => p.text));
   const norm = normalisedPages(allPages);
-  const stats = { total: 0, verified: 0, notFound: 0, tooShort: 0, missingProofFlags: 0 };
+  const stats = { total: 0, verified: 0, verifiedSegments: 0, notFound: 0, tooShort: 0, missingProofFlags: 0 };
 
   const check = (p: RawPoint & { missingProof?: boolean }, isConcern: boolean): CheckedPoint => {
     if (isConcern && p.missingProof && !p.quote) {
@@ -162,6 +162,7 @@ export async function runAgent(opts: {
     const c = checkQuote(p.quote, p.url, norm);
     stats.total++;
     if (c.status === 'verified') stats.verified++;
+    else if (c.status === 'verified_segments') stats.verifiedSegments++;
     else if (c.status === 'too_short') stats.tooShort++;
     else stats.notFound++;
     return { ...p, citation: c };

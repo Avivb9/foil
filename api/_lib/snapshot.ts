@@ -8,11 +8,14 @@ export interface PageSnapshot {
   sha256: string;
   chars: number;
   text: string;
+  /** true when the extracted page was longer than the cap and got cut */
+  truncated: boolean;
+  fullChars: number;
   error?: string;
 }
 
 const MAX_HTML_BYTES = 3_000_000;
-export const MAX_PAGE_CHARS = Number(process.env.FOIL_MAX_PAGE_CHARS || 8000);
+export const MAX_PAGE_CHARS = Number(process.env.FOIL_MAX_PAGE_CHARS || 14000);
 
 function assertPublicUrl(raw: string): URL {
   const u = new URL(raw);
@@ -41,7 +44,8 @@ export async function snapshotPage(raw: string): Promise<PageSnapshot> {
     clearTimeout(timer);
     const buf = await res.arrayBuffer();
     const html = new TextDecoder().decode(buf.slice(0, MAX_HTML_BYTES));
-    const text = htmlToText(html).slice(0, MAX_PAGE_CHARS);
+    const full = htmlToText(html);
+    const text = full.slice(0, MAX_PAGE_CHARS);
     return {
       url: raw,
       status: res.status,
@@ -49,9 +53,11 @@ export async function snapshotPage(raw: string): Promise<PageSnapshot> {
       sha256: createHash('sha256').update(text).digest('hex'),
       chars: text.length,
       text,
+      truncated: full.length > MAX_PAGE_CHARS,
+      fullChars: full.length,
       ...(res.ok ? {} : { error: `HTTP ${res.status}` }),
     };
   } catch (e) {
-    return { url: raw, status: 0, fetchedAt, sha256: '', chars: 0, text: '', error: (e as Error).message };
+    return { url: raw, status: 0, fetchedAt, sha256: '', chars: 0, text: '', truncated: false, fullChars: 0, error: (e as Error).message };
   }
 }

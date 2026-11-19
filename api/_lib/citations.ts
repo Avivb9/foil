@@ -15,7 +15,7 @@ export function normalise(s: string): string {
     .replace(/^["'\s.,;:!?-]+|["'\s.,;:!?-]+$/g, '');
 }
 
-export type CitationStatus = 'verified' | 'not_found' | 'too_short' | 'missing';
+export type CitationStatus = 'verified' | 'verified_segments' | 'not_found' | 'too_short' | 'missing';
 
 export interface CitationCheck {
   status: CitationStatus;
@@ -39,8 +39,24 @@ export function checkQuote(
   if (!quote || !quote.trim()) return { status: 'missing', quote: null, url: url ?? null };
   const q = normalise(quote);
   if (q.length < MIN_QUOTE_CHARS) return { status: 'too_short', quote, url: url ?? null };
-  if (url && pages.get(url)?.includes(q)) return { status: 'verified', quote, url };
-  for (const [u, text] of pages) if (text.includes(q)) return { status: 'verified', quote, url: u };
+  const ordered = [...pages.entries()].sort(([a], [b]) => (a === url ? -1 : b === url ? 1 : 0));
+  for (const [u, text] of ordered) if (text.includes(q)) return { status: 'verified', quote, url: u };
+
+  // Agents sometimes stitch fragments with an ellipsis. Accept only if every
+  // fragment is itself long enough and all appear, in order, on ONE page.
+  const parts = quote.split(/\.\.\.|…/).map(normalise).filter(Boolean);
+  if (parts.length > 1 && parts.every((p) => p.length >= MIN_QUOTE_CHARS)) {
+    for (const [u, text] of ordered) {
+      let from = 0;
+      const ok = parts.every((p) => {
+        const i = text.indexOf(p, from);
+        if (i < 0) return false;
+        from = i + p.length;
+        return true;
+      });
+      if (ok) return { status: 'verified_segments', quote, url: u };
+    }
+  }
   return { status: 'not_found', quote, url: url ?? null };
 }
 

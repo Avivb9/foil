@@ -2,7 +2,7 @@
 // Good enough for marketing pages: drops scripts, styles, nav chrome and SVG,
 // keeps headings, paragraphs, list items and table cells as separate lines.
 
-const DROP_BLOCKS = /<(script|style|noscript|svg|iframe|template|head)\b[\s\S]*?<\/\1>/gi;
+const DROP_BLOCKS = /<(script|style|noscript|svg|iframe|template|head|nav|footer)\b[\s\S]*?<\/\1>/gi;
 const BLOCK_TAGS =
   /<\/?(p|div|section|article|header|footer|main|aside|li|ul|ol|h[1-6]|tr|td|th|table|br|hr|blockquote|figcaption|dt|dd|summary|details|button|a)\b[^>]*>/gi;
 
@@ -40,9 +40,19 @@ export function htmlToText(html: string): string {
     .split('\n')
     .map((l) => l.replace(/\s+/g, ' ').trim())
     .filter((l) => l.length > 1);
-  // collapse consecutive duplicates (menus repeated for mobile/desktop)
+  // Menus are often rendered twice (mobile + desktop) and short labels repeat
+  // across the page. Keep the first occurrence of any short line; keep every
+  // long line (real copy) even if it repeats.
   const out: string[] = [];
-  for (const l of lines) if (out[out.length - 1] !== l) out.push(l);
+  const seenShort = new Set<string>();
+  for (const l of lines) {
+    if (out[out.length - 1] === l) continue;
+    if (l.length < 40) {
+      if (seenShort.has(l)) continue;
+      seenShort.add(l);
+    }
+    out.push(l);
+  }
   const head = [title && `TITLE: ${decodeEntities(title)}`, metaDesc && `DESCRIPTION: ${decodeEntities(metaDesc)}`]
     .filter(Boolean)
     .join('\n');

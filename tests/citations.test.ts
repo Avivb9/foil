@@ -47,3 +47,27 @@ describe('htmlToText', () => {
     expect(t.match(/World wide/g)?.length).toBe(1);
   });
 });
+
+describe('stitched quotes', () => {
+  const p2 = normalisedPages([
+    { url: 'https://b.com/pricing', text: 'All plans include unlimited seats. Something else here. Save money with an annual plan today.' },
+  ]);
+  it('accepts long fragments that appear in order on one page', () => {
+    expect(checkQuote('All plans include unlimited seats... Save money with an annual plan', null, p2).status).toBe('verified_segments');
+  });
+  it('rejects fragments out of order', () => {
+    expect(checkQuote('Save money with an annual plan... All plans include unlimited seats', null, p2).status).toBe('not_found');
+  });
+  it('rejects tiny fragments used as glue', () => {
+    expect(checkQuote('All plans include unlimited seats... plan', null, p2).status).toBe('not_found');
+  });
+});
+
+describe('menu dedupe', () => {
+  it('drops nav and repeated short labels but keeps long copy', () => {
+    const t = htmlToText('<nav><a>Pricing</a><a>Docs</a></nav><div>Pricing</div><p>Pricing</p><p>This is a long sentence of real marketing copy here.</p><p>This is a long sentence of real marketing copy here.</p><footer>Legal</footer>');
+    expect(t.match(/^Pricing$/gm)?.length).toBe(1);
+    expect(t).not.toContain('Docs');
+    expect(t).not.toContain('Legal');
+  });
+});
