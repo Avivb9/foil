@@ -58,11 +58,11 @@ line(`# Judge evaluation — ${d.experiment}`);
 line();
 line(`Snapshot \`${d.snapshot}\` · judge prompt \`${d.judgePrompt}\` · ${items.length} items (3 vendors × 10 requirements)`);
 line();
-line(`**Reference labels:** ${d.referenceLabeller}. Every label and its reason is in \`data/${inPath.split('/').pop()}\`.`);
+line(`**Answer key:** labelled by ${d.referenceLabeller}. Every label is in \`data/${inPath.split('/').pop()}\`.`);
 line();
 line('Question: given the same excerpts, does the AI judge reach the same verdict (met / not met / unclear)?');
 line();
-line('## Accuracy against the reference labels');
+line('## Accuracy against the answer key');
 line();
 line('| Judge | Agreement | 95% CI | Cohen\'s κ |');
 line('|---|---|---|---|');
@@ -84,16 +84,16 @@ line();
 // confusion + disagreements
 for (const p of Object.keys(byJudge)) {
   const maj = items.map((i) => mode(byJudge[p][i]) as L);
-  line(`## Where ${p} disagrees with the reference`);
+  line(`## Where ${p} disagrees with the answer key`);
   line();
-  line('| Item | Reference | Model (all repeats) | Reference reason |');
-  line('|---|---|---|---|');
+  line('| Item | Answer key | Model (all repeats) |');
+  line('|---|---|---|');
   items.forEach((id, k) => {
-    if (maj[k] !== ref[k]) line(`| ${id} | ${ref[k]} | ${byJudge[p][id].join(', ')} | ${d.labels[id][1].replaceAll('|', '/')} |`);
+    if (maj[k] !== ref[k]) line(`| ${id} | ${ref[k]} | ${byJudge[p][id].join(', ')} |`);
   });
   line();
   const cats: L[] = ['met', 'not_met', 'unclear'];
-  line('Confusion (rows = reference, columns = model majority):');
+  line('Confusion (rows = answer key, columns = model majority):');
   line();
   line(`| | ${cats.join(' | ')} |`);
   line('|---|---|---|---|');
