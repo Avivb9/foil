@@ -1,7 +1,8 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
 import { IntroOverlay } from './components/IntroOverlay';
 import { Toaster } from './components/Toaster';
+import Label from './pages/Label';
 import NewSpar from './pages/NewSpar';
 import NotFound from './pages/NotFound';
 import Personas from './pages/Personas';
@@ -14,6 +15,7 @@ import SparWorkspace from './pages/SparWorkspace';
 import SparsList from './pages/SparsList';
 
 export default function App() {
+  const { pathname } = useLocation();
   return (
     <>
       <Routes>
@@ -31,8 +33,9 @@ export default function App() {
         </Route>
         <Route path="share/:slug" element={<SharedReport />} />
         <Route path="signin" element={<SignIn />} />
+        <Route path="label" element={<Label />} />
       </Routes>
-      <IntroOverlay />
+      {!pathname.startsWith('/label') && <IntroOverlay />}
       <Toaster />
     </>
   );

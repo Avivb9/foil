@@ -23,3 +23,6 @@ export const getSnapshot = <T>(snapshotId: string) => rpc<T | null>('foil_get_sn
 export const countRuns = (experiment: string, provider: string) =>
   rpc<number>('foil_count_runs', { p_experiment: experiment, p_provider: provider });
 export const saveBypass = (value: string) => rpc<{ ok: boolean }>('foil_ingest', { kind: 'config', body: { key: 'vercel_bypass', value } });
+export const saveLabel = (item: string, label: string, note: string | null) =>
+  rpc<{ ok: boolean }>('foil_label', { p_item: item, p_label: label, p_note: note });
+export const getLabels = () => rpc<Record<string, { label: string; note: string | null }>>('foil_get_labels', {});

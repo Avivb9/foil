@@ -46,3 +46,6 @@ export const DEMO_VENDORS: { name: string; urls: string[] }[] = [
   { name: 'Mixpanel', urls: ['https://mixpanel.com/', 'https://mixpanel.com/pricing/'] },
   { name: 'Amplitude', urls: ['https://amplitude.com/amplitude-analytics', 'https://amplitude.com/pricing'] },
 ];
+
+/** Frozen snapshot used by the baseline experiment and the judge eval. */
+export const DEMO_SNAPSHOT_ID = 'product-analytics-eu-series-b@2026-11-19-b69092a140';
