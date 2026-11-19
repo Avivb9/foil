@@ -38,7 +38,16 @@ Date: 2026-11-19 · Deal: `product-analytics-eu-series-b` (EU Series B SaaS choo
 | gemini-2.5-flash-lite | 404, retired for new users |
 | Groq llama-3.3-70b | not tested yet (key not set) |
 
-Gemini returns no rate-limit headers; daily quotas must be read from the AI Studio dashboard.
+Gemini returns no rate-limit headers. Free-tier limits from the AI Studio dashboard (project "My Tools", 2026-11-19):
+
+| Model | RPM | TPM | RPD | Fit for Foil |
+|---|---|---|---|---|
+| gemini-3.5-flash-lite | 15 | 250K | 500 | **Workhorse**: ~500 agent calls/day = ~100 five-role committee runs/day |
+| gemini-2.5-flash | 5 | 250K | 20 | No: shared with PMM Mentor on the same project and already over its daily limit |
+| gemini-3.8-flash / 3.6-flash | 5 | 250K | 20 | Spot checks only (~4 committee runs/day) |
+| gemma-4-31b | 30 | 16K | 14.4K | No: one agent prompt is ~15K tokens, TPM too small |
+
+Each agent call is ~15K input tokens, so tokens-per-minute, not requests, is the binding limit on small-TPM models. Second model family therefore has to come from Groq.
 
 ## Open for M2
 
