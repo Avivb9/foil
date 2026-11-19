@@ -14,7 +14,7 @@ Question: given the same excerpts, does the AI judge reach the same verdict (met
 | gemini (single run, average) | 88% | — | 0.76 |
 | keyword baseline | 73% (22/30) | 56%–86% | 0.33 |
 
-κ corrects for chance: 0 = no better than guessing the label mix, 1 = perfect. The keyword baseline says "met" whenever a related word appears, which is right more often than you would think and still has near-zero κ.
+κ corrects for chance: 0 = no better than guessing the label mix, 1 = perfect. The keyword baseline says "met" whenever a related word appears, which is right more often than you would think, but its κ is less than half that of the model.
 
 ## Self-consistency across repeats
 

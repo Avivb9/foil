@@ -69,7 +69,7 @@ line('|---|---|---|---|');
 for (const r of rows)
   line(`| ${r.name} | ${pct(r.acc)}${Number.isFinite(r.k) ? ` (${r.k}/${r.n})` : ''} | ${Number.isFinite(r.lo) ? `${pct(r.lo)}–${pct(r.hi)}` : '—'} | ${r.kappa.toFixed(2)} |`);
 line();
-line('κ corrects for chance: 0 = no better than guessing the label mix, 1 = perfect. The keyword baseline says "met" whenever a related word appears, which is right more often than you would think, but its κ is less than half of the model's.');
+line('κ corrects for chance: 0 = no better than guessing the label mix, 1 = perfect. The keyword baseline says "met" whenever a related word appears, which is right more often than you would think, but its κ is less than half that of the model.');
 line();
 
 // self-consistency
