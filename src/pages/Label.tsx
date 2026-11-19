@@ -22,6 +22,7 @@ function seededOrder<T extends { id: string }>(xs: T[]): T[] {
 }
 
 export default function LabelPage() {
+  const review = new URLSearchParams(window.location.search).has('review');
   const [items, setItems] = useState<Item[]>([]);
   const [labels, setLabels] = useState<Record<string, { label: Label; note: string | null }>>({});
   const [reference, setReference] = useState<Record<string, { label: Label; note: string | null }>>({});
@@ -37,7 +38,7 @@ export default function LabelPage() {
         const ordered = seededOrder(d.items as Item[]);
         setItems(ordered);
         setLabels(d.labels ?? {});
-        setReference(d.reference ?? {});
+        setReference(review ? d.reference ?? {} : {});
         const firstOpen = ordered.findIndex((it) => !d.labels?.[it.id]);
         setI(firstOpen === -1 ? 0 : firstOpen);
       })
@@ -98,7 +99,7 @@ export default function LabelPage() {
       <div className="mx-auto max-w-3xl px-5 py-8">
         <header className="mb-6">
           <div className="flex items-baseline justify-between">
-            <h1 className="font-display text-2xl">Foil · review the answer key</h1>
+            <h1 className="font-display text-2xl">Foil · {review ? 'review the answer key' : 'answer key'}</h1>
             <span className="font-mono text-sm text-neutral-500">
               {done}/{items.length} labelled
             </span>
@@ -107,7 +108,8 @@ export default function LabelPage() {
             <div className="h-1.5 rounded bg-ember-500 transition-all" style={{ width: `${(done / items.length) * 100}%` }} />
           </div>
           <p className="mt-3 text-sm text-neutral-600">
-            Each card has a suggested answer. If you agree, press <kbd>A</kbd> (or Enter). If not, pick the right one: <kbd>1</kbd> met · <kbd>2</kbd> not met · <kbd>3</kbd> unclear. Judge <b>only from the excerpts</b>, not from what you know about the product.
+            {review ? <>Each card has a suggested answer. If you agree, press <kbd>A</kbd> (or Enter). If not, pick the right one: </> : <>For each card, pick: </>}
+            <kbd>1</kbd> met · <kbd>2</kbd> not met · <kbd>3</kbd> unclear. Judge <b>only from the excerpts</b>, not from what you know about the product.
           </p>
           {allDone && (
             <p className="mt-3 rounded border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -150,7 +152,7 @@ export default function LabelPage() {
               </button>
             </div>
           )}
-          <div className="mt-3 text-xs text-neutral-500">Or choose a different answer:</div>
+          {review && <div className="mt-3 text-xs text-neutral-500">Or choose a different answer:</div>}
           <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {OPTIONS.map((o) => (
               <button
