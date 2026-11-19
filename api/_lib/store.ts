@@ -20,3 +20,5 @@ async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
 export const saveSnapshot = (body: unknown) => rpc<{ ok: boolean; id: string }>('foil_ingest', { kind: 'snapshot', body });
 export const saveRun = (body: unknown) => rpc<{ ok: boolean; id: number }>('foil_ingest', { kind: 'run', body });
 export const getSnapshot = <T>(snapshotId: string) => rpc<T | null>('foil_get_snapshot', { snapshot_id: snapshotId });
+export const countRuns = (experiment: string, provider: string) =>
+  rpc<number>('foil_count_runs', { p_experiment: experiment, p_provider: provider });

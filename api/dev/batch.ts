@@ -7,7 +7,7 @@ import { decide } from '../_lib/committee.js';
 import { DEMO_BRIEF } from '../_lib/demo-deal.js';
 import { devOnly } from '../_lib/guard.js';
 import type { Provider } from '../_lib/providers.js';
-import { getSnapshot, saveRun } from '../_lib/store.js';
+import { countRuns, getSnapshot, saveRun } from '../_lib/store.js';
 
 export const config = { maxDuration: 300 };
 
@@ -33,6 +33,19 @@ export async function GET(request: Request): Promise<Response> {
   const charsPerVendor = Number(q.get('chars') || 2800);
   if (!snapshotId) return Response.json({ error: 'snapshot required' }, { status: 400 });
 
+  // Scheduled mode (?target=N): top the experiment up to N runs, then no-op.
+  // Requires the ingest key, so a scheduler can call it without a person present.
+  const target = q.get('target') ? Number(q.get('target')) : null;
+  let n2 = n;
+  if (target !== null) {
+    if (request.headers.get('x-foil-key') !== process.env.FOIL_INGEST_SECRET) {
+      return Response.json({ error: 'forbidden' }, { status: 403 });
+    }
+    const have = await countRuns(experiment, provider);
+    if (have >= target) return Response.json({ experiment, provider, done: true, have, target });
+    n2 = Math.min(n, target - have);
+  }
+
   const snap = await getSnapshot<{ id: string; vendors: Vendor[] }>(snapshotId);
   if (!snap) return Response.json({ error: 'snapshot not found' }, { status: 404 });
 
@@ -41,7 +54,7 @@ export async function GET(request: Request): Promise<Response> {
   const errors: string[] = [];
   const pace = PACING[provider];
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n2; i++) {
     // estimate whether another full run fits in the budget
     const perRun = pace.parallel ? pace.gapMs : pace.gapMs * ROLE_KEYS.length;
     if (Date.now() - t0 + perRun > BUDGET_MS) break;
@@ -94,10 +107,10 @@ export async function GET(request: Request): Promise<Response> {
       ms: Date.now() - runStart,
     });
 
-    if (pace.parallel && i < n - 1) {
+    if (pace.parallel && i < n2 - 1) {
       const wait = pace.gapMs - (Date.now() - runStart);
       if (wait > 0) await sleep(wait);
-    } else if (!pace.parallel && i < n - 1) {
+    } else if (!pace.parallel && i < n2 - 1) {
       await sleep(pace.gapMs);
     }
   }
