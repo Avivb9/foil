@@ -60,25 +60,43 @@ export function decide(runs: AgentRun[], brief: DealBrief): Outcome {
     .filter((r) => r.preferred !== 'no_decision' && !eligibleFor(r, brief).has(r.preferred))
     .map((r) => r.role);
 
-  const base = { blockers, votes, contradictions };
-  if (!committeeEligible.length) return { result: 'no_decision', why: 'no_eligible_vendor', ...base };
-
-  const tally = new Map<string, number>();
-  for (const v of Object.values(votes)) if (committeeEligible.includes(v)) tally.set(v, (tally.get(v) ?? 0) + 1);
-  const sorted = [...tally.entries()].sort((a, b) => b[1] - a[1]);
-  if (!sorted.length) return { result: 'no_decision', why: 'no_majority', ...base };
-
-  let winner = sorted[0][0];
-  if (sorted.length > 1 && sorted[1][1] === sorted[0][1]) {
-    // tie: economic buyer's vote breaks it if it is among the tied
-    const tied = sorted.filter(([, n]) => n === sorted[0][1]).map(([v]) => v);
-    const eb = votes.economic_buyer;
-    if (!tied.includes(eb)) return { result: 'no_decision', why: 'no_majority', ...base };
-    winner = eb;
-  }
-
   const eb = byRole.get('economic_buyer');
-  if (eb && !eligibleFor(eb, brief).has(winner)) return { result: 'no_decision', why: 'economic_buyer_veto', ...base };
+  const ebEligible = eb ? eligibleFor(eb, brief) : new Set(vendors);
+  const t = tallyDecision(votes, committeeEligible, ebEligible);
+  return { ...t, blockers, votes, contradictions };
+}
 
-  return { result: 'win', vendor: winner, why: 'majority', ...base };
+export const DECISION_RULE = 'v2';
+
+/**
+ * Decision rule v2 (pure, so stored runs can be re-scored without new model calls).
+ * - "no_decision" is a candidate like any vendor; a vote for a committee-blocked vendor counts as no_decision.
+ * - The winner needs strictly more votes than "no_decision" (and than any other vendor).
+ * - A tie between vendors is broken by the economic buyer's vote, if it is one of them.
+ * - The economic buyer can veto a winner it found ineligible.
+ * (v1 ignored no_decision votes, so a vendor could "win" with 1 of 5 votes.)
+ */
+export function tallyDecision(
+  votes: Record<string, string>,
+  committeeEligible: string[],
+  ebEligible: Set<string>,
+): Pick<Outcome, 'result' | 'vendor' | 'why'> {
+  if (!committeeEligible.length) return { result: 'no_decision', why: 'no_eligible_vendor' };
+  const tally = new Map<string, number>();
+  let nd = 0;
+  for (const v of Object.values(votes)) {
+    if (committeeEligible.includes(v)) tally.set(v, (tally.get(v) ?? 0) + 1);
+    else nd++;
+  }
+  const sorted = [...tally.entries()].sort((a, b) => b[1] - a[1]);
+  if (!sorted.length || sorted[0][1] <= nd) return { result: 'no_decision', why: 'no_majority' };
+  let winner = sorted[0][0];
+  const tied = sorted.filter(([, n]) => n === sorted[0][1]).map(([v]) => v);
+  if (tied.length > 1) {
+    const ebVote = votes.economic_buyer;
+    if (!tied.includes(ebVote)) return { result: 'no_decision', why: 'no_majority' };
+    winner = ebVote;
+  }
+  if (!ebEligible.has(winner)) return { result: 'no_decision', why: 'economic_buyer_veto' };
+  return { result: 'win', vendor: winner, why: 'majority' };
 }

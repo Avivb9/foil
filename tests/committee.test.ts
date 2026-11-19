@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { AgentRun, CheckedRequirement, DealBrief, RoleKey, Verdict } from '../api/_lib/agent';
-import { decide, eligibleFor, roleVote } from '../api/_lib/committee';
+import { decide, eligibleFor, roleVote, tallyDecision } from '../api/_lib/committee';
 import { buildPacks } from '../api/_lib/evidence';
 import { twoProportion, wilson } from '../api/_lib/stats';
 
@@ -67,10 +67,10 @@ describe('decide', () => {
     const o = decide(roles.map((r) => run(r, allMet)), brief);
     expect(o).toMatchObject({ result: 'win', vendor: 'A', why: 'majority' });
   });
-  it('the owner of a requirement can block a vendor', () => {
+  it('the owner of a requirement can block a vendor, and votes for it then count as no_decision', () => {
     const runs = roles.map((r) => (r === 'security_legal' ? run(r, { A: ['unclear', 'met', 8], B: ['met', 'met', 6] }) : run(r, allMet)));
     const o = decide(runs, brief);
-    expect(o.vendor).toBe('B');
+    expect(o.result).toBe('no_decision'); // four members back A, which security blocked; B has one vote
     expect(o.blockers).toContainEqual({ vendor: 'A', requirement: 'M1', owner: 'security_legal', effective: 'unclear' });
   });
   it('no eligible vendor means no decision', () => {
@@ -80,6 +80,19 @@ describe('decide', () => {
   it('counts a contradiction when a model prefers a vendor its own verdicts rule out', () => {
     const runs = roles.map((r) => (r === 'champion' ? run(r, { A: ['not_met', 'met', 9], B: ['met', 'met', 6] }, 'A') : run(r, allMet)));
     expect(decide(runs, brief).contradictions).toEqual(['champion']);
+  });
+});
+
+describe('decision rule v2', () => {
+  const all = new Set(['A', 'B']);
+  it('a single vote against four no_decisions is not a win', () => {
+    expect(tallyDecision({ a: 'A', b: 'no_decision', c: 'no_decision', d: 'no_decision', e: 'no_decision' }, ['A', 'B'], all).result).toBe('no_decision');
+  });
+  it('a vote for a blocked vendor counts as no_decision', () => {
+    expect(tallyDecision({ a: 'B', b: 'B', c: 'B', d: 'A', e: 'A' }, ['A'], all)).toMatchObject({ result: 'no_decision' });
+  });
+  it('3 of 5 wins', () => {
+    expect(tallyDecision({ economic_buyer: 'A', b: 'A', c: 'A', d: 'no_decision', e: 'B' }, ['A', 'B'], all)).toMatchObject({ result: 'win', vendor: 'A' });
   });
 });
 
