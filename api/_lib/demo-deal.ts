@@ -1,4 +1,4 @@
-import type { DealBrief } from './agent';
+import type { DealBrief } from './agent.js';
 
 // Demo deal built only from public vendor pages. Illustrative, not an endorsement.
 export const DEMO_BRIEF: DealBrief = {

@@ -1,7 +1,7 @@
 // GET /api/dev/probe — which providers/models answer with the configured keys,
 // plus whatever rate-limit headers they expose.
-import { devOnly } from '../_lib/guard';
-import { callModel, DEFAULT_MODELS, ProviderError, type Provider } from '../_lib/providers';
+import { devOnly } from '../_lib/guard.js';
+import { callModel, DEFAULT_MODELS, ProviderError, type Provider } from '../_lib/providers.js';
 
 export async function GET(): Promise<Response> {
   const blocked = devOnly();

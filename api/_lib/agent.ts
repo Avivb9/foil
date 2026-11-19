@@ -1,6 +1,6 @@
-import { checkQuote, normalisedPages, type CitationCheck } from './citations';
-import { callModel, parseJson, type ModelResult, type Provider } from './providers';
-import type { PageSnapshot } from './snapshot';
+import { checkQuote, normalisedPages, type CitationCheck } from './citations.js';
+import { callModel, parseJson, type ModelResult, type Provider } from './providers.js';
+import type { PageSnapshot } from './snapshot.js';
 
 export const PROMPT_VERSION = 'committee-v0.1';
 

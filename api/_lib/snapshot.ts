@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { htmlToText } from './extract';
+import { htmlToText } from './extract.js';
 
 export interface PageSnapshot {
   url: string;

@@ -1,10 +1,10 @@
 // GET /api/dev/m1?provider=gemini|groq&role=economic_buyer&model=...
 // M1 end-to-end: snapshot demo vendor pages -> one committee agent -> deterministic citation check.
-import { ROLES, runAgent, type RoleKey, type Vendor } from '../_lib/agent';
-import { DEMO_BRIEF, DEMO_VENDORS } from '../_lib/demo-deal';
-import { devOnly } from '../_lib/guard';
-import { ProviderError, type Provider } from '../_lib/providers';
-import { snapshotPage } from '../_lib/snapshot';
+import { ROLES, runAgent, type RoleKey, type Vendor } from '../_lib/agent.js';
+import { DEMO_BRIEF, DEMO_VENDORS } from '../_lib/demo-deal.js';
+import { devOnly } from '../_lib/guard.js';
+import { ProviderError, type Provider } from '../_lib/providers.js';
+import { snapshotPage } from '../_lib/snapshot.js';
 
 export const config = { maxDuration: 60 };
 
