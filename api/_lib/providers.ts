@@ -121,10 +121,10 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
  * Calls the provider with retries on rate limits and overload (429/5xx).
- * Backoff: honours Retry-After when present, else 2s, 4s, 8s (+ jitter).
+ * Backoff: honours Retry-After when present, else 3s, 6s, 12s, 24s, 30s (+ jitter).
  * Each attempt is counted so batch reports can show how often we were throttled.
  */
-export async function callModel(c: ModelCall, maxAttempts = 4): Promise<ModelResult & { attempts: number }> {
+export async function callModel(c: ModelCall, maxAttempts = 6): Promise<ModelResult & { attempts: number }> {
   let lastErr: unknown;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -135,8 +135,8 @@ export async function callModel(c: ModelCall, maxAttempts = 4): Promise<ModelRes
       const pe = e as ProviderError;
       if (!(pe instanceof ProviderError) || !RETRYABLE.has(pe.status) || attempt === maxAttempts) throw e;
       const retryAfter = Number(pe.body.match(/"retryDelay":\s*"(\d+)s"/)?.[1] ?? NaN);
-      const wait = Number.isFinite(retryAfter) ? retryAfter * 1000 : 2000 * 2 ** (attempt - 1);
-      await sleep(Math.min(wait, 20_000) + Math.random() * 500);
+      const wait = Number.isFinite(retryAfter) ? retryAfter * 1000 : 3000 * 2 ** (attempt - 1);
+      await sleep(Math.min(wait, 30_000) + Math.random() * 1500);
     }
   }
   throw lastErr;

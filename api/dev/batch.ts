@@ -52,7 +52,8 @@ export async function GET(request: Request): Promise<Response> {
       const one = (role: (typeof ROLE_KEYS)[number]) =>
         runAgent({ role, brief: DEMO_BRIEF, vendors: snap.vendors, provider, model, charsPerVendor });
       if (pace.parallel) {
-        agents = await Promise.all(ROLE_KEYS.map(one));
+        // stagger starts so five calls do not hit the API in the same instant
+        agents = await Promise.all(ROLE_KEYS.map((role, k) => sleep(k * 1500).then(() => one(role))));
       } else {
         for (const role of ROLE_KEYS) {
           const s = Date.now();
