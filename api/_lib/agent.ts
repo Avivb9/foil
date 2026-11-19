@@ -92,7 +92,7 @@ export interface AgentRun {
     })[];
   };
   citationStats: { total: number; verified: number; verifiedSegments: number; notFound: number; tooShort: number; missingProofFlags: number };
-  trace: Pick<ModelResult, 'inputTokens' | 'outputTokens' | 'latencyMs' | 'rateLimit'>;
+  trace: Pick<ModelResult, 'inputTokens' | 'outputTokens' | 'latencyMs' | 'rateLimit'> & { attempts: number };
 }
 
 function renderSources(vendors: Vendor[]): string {
@@ -187,6 +187,7 @@ export async function runAgent(opts: {
       outputTokens: res.outputTokens,
       latencyMs: res.latencyMs,
       rateLimit: res.rateLimit,
+      attempts: res.attempts,
     },
   };
 }

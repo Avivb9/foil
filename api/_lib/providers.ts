@@ -113,8 +113,30 @@ async function callGroq(c: ModelCall): Promise<ModelResult> {
   };
 }
 
-export function callModel(c: ModelCall): Promise<ModelResult> {
-  return c.provider === 'gemini' ? callGemini(c) : callGroq(c);
+const RETRYABLE = new Set([429, 500, 502, 503, 504]);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Calls the provider with retries on rate limits and overload (429/5xx).
+ * Backoff: honours Retry-After when present, else 2s, 4s, 8s (+ jitter).
+ * Each attempt is counted so batch reports can show how often we were throttled.
+ */
+export async function callModel(c: ModelCall, maxAttempts = 4): Promise<ModelResult & { attempts: number }> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const r = await (c.provider === 'gemini' ? callGemini(c) : callGroq(c));
+      return { ...r, attempts: attempt };
+    } catch (e) {
+      lastErr = e;
+      const pe = e as ProviderError;
+      if (!(pe instanceof ProviderError) || !RETRYABLE.has(pe.status) || attempt === maxAttempts) throw e;
+      const retryAfter = Number(pe.body.match(/"retryDelay":\s*"(\d+)s"/)?.[1] ?? NaN);
+      const wait = Number.isFinite(retryAfter) ? retryAfter * 1000 : 2000 * 2 ** (attempt - 1);
+      await sleep(Math.min(wait, 20_000) + Math.random() * 500);
+    }
+  }
+  throw lastErr;
 }
 
 /** Parse a model's JSON reply, tolerating ```json fences. */
