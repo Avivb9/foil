@@ -38,7 +38,7 @@ function run(role: RoleKey, v: Record<string, [Verdict, Verdict, number]>, prefe
     confidence: 1,
     evidenceChars: 0,
     citationStats: { checked: 0, verified: 0, downgraded: 0 },
-    trace: { inputTokens: 0, outputTokens: 0, latencyMs: 0, attempts: 1 },
+    trace: { inputTokens: 0, outputTokens: 0, latencyMs: 0, modelVersion: null, attempts: 1 },
   };
 }
 

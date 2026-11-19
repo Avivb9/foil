@@ -104,7 +104,7 @@ export interface AgentRun {
   confidence: number;
   evidenceChars: number;
   citationStats: { checked: number; verified: number; downgraded: number };
-  trace: Pick<ModelResult, 'inputTokens' | 'outputTokens' | 'latencyMs'> & { attempts: number };
+  trace: Pick<ModelResult, 'inputTokens' | 'outputTokens' | 'latencyMs' | 'modelVersion'> & { attempts: number };
 }
 
 export const VERIFIED = new Set(['verified', 'verified_segments']);
@@ -210,6 +210,6 @@ export async function runAgent(opts: {
     confidence: Number(raw.confidence ?? 0),
     evidenceChars,
     citationStats: stats,
-    trace: { inputTokens: res.inputTokens, outputTokens: res.outputTokens, latencyMs: res.latencyMs, attempts: res.attempts },
+    trace: { inputTokens: res.inputTokens, outputTokens: res.outputTokens, latencyMs: res.latencyMs, modelVersion: res.modelVersion, attempts: res.attempts },
   };
 }

@@ -19,6 +19,8 @@ export interface ModelResult {
   inputTokens: number | null;
   outputTokens: number | null;
   latencyMs: number;
+  /** exact version the provider says it served (aliases like *-latest resolve here) */
+  modelVersion: string | null;
   rateLimit: Record<string, string>; // whatever limit headers the provider returns
 }
 
@@ -77,6 +79,7 @@ async function callGemini(c: ModelCall): Promise<ModelResult> {
     inputTokens: json.usageMetadata?.promptTokenCount ?? null,
     outputTokens: json.usageMetadata?.candidatesTokenCount ?? null,
     latencyMs: Date.now() - t0,
+    modelVersion: json.modelVersion ?? null,
     rateLimit: pickHeaders(res.headers, 'x-ratelimit'),
   };
 }
@@ -112,6 +115,7 @@ async function callGroq(c: ModelCall): Promise<ModelResult> {
     inputTokens: json.usage?.prompt_tokens ?? null,
     outputTokens: json.usage?.completion_tokens ?? null,
     latencyMs: Date.now() - t0,
+    modelVersion: json.model ?? null,
     rateLimit: pickHeaders(res.headers, 'x-ratelimit'),
   };
 }
