@@ -1,4 +1,4 @@
-// npx tsx scripts/ab-report.ts data/baseline-v1.json data/cf-posthog-proof-v1.json PostHog gemini docs/AB-POSTHOG-PROOF.md
+// npx tsx scripts/ab-report.ts data/ab-posthog-proof-v1.json docs/AB-POSTHOG-PROOF.md
 // Before/after comparison for one counterfactual page edit. Same model, same prompt,
 // same snapshot except one page. Includes a placebo check: vendors that were NOT
 // edited should not move.
@@ -9,25 +9,24 @@ import { twoProportion, wilson } from '../api/_lib/stats';
 type Letter = 'M' | 'N' | 'U';
 interface Run {
   id: number;
-  p: string;
   votes: Record<string, string>;
-  contra: string[];
-  verdicts: Record<string, string>;
-  s: { checked: number; verified: number; downgraded: number };
+  v: Record<string, string>;
 }
 interface Data {
   experiment: string;
-  snapshot: string;
+  provider: string;
   requirementOrder: string[];
   owners: Record<string, string>;
-  runs: Run[];
-  variant?: { id: string; insert: string; rationale: string };
+  vendorCodes: Record<string, string>;
+  variant: { id: string; vendor: string; insert: string; rationale: string };
+  arms: { before: { runs: Run[] }; after: { runs: Run[] } };
 }
 
-const [, , aPath, bPath, target = 'PostHog', provider = 'gemini', outPath = 'docs/AB-REPORT.md'] = process.argv;
-const A: Data = JSON.parse(readFileSync(aPath, 'utf8'));
-const B: Data = JSON.parse(readFileSync(bPath, 'utf8'));
-const REQ = A.requirementOrder;
+const [, , inPath = 'data/ab-posthog-proof-v1.json', outPath = 'docs/AB-REPORT.md'] = process.argv;
+const D: Data = JSON.parse(readFileSync(inPath, 'utf8'));
+const REQ = D.requirementOrder;
+const target = D.variant.vendor;
+const provider = D.provider;
 const REQ_TEXT: Record<string, string> = {
   D1: 'Predictable pricing',
   M1: 'EU data hosting',
@@ -38,30 +37,31 @@ const REQ_TEXT: Record<string, string> = {
 function parse(s: string) {
   const byVendor: Record<string, Record<string, Letter>> = {};
   for (const tok of s.split(' ')) {
-    if (tok.startsWith('pref=')) continue;
-    const [vendor, code] = tok.split(':');
-    const letters = [...code].filter((c) => c !== '*') as Letter[];
-    byVendor[vendor] = Object.fromEntries(REQ.map((r, i) => [r, letters[i]]));
+    const [code, letters] = tok.split(':');
+    const vendor = D.vendorCodes[code] ?? code;
+    byVendor[vendor] = Object.fromEntries(REQ.map((r, i) => [r, letters[i] as Letter]));
   }
   return byVendor;
 }
 
-function score(d: Data) {
-  const runs = d.runs.filter((r) => r.p === provider);
-  const vendors = Object.keys(parse(runs[0].verdicts.economic_buyer));
+function score(runs: Run[]) {
+  const vendors = Object.keys(parse(runs[0].v.economic_buyer));
   return runs.map((r) => {
-    const parsed = Object.fromEntries(Object.entries(r.verdicts).map(([role, s]) => [role, parse(s)]));
-    const ownerOk = (v: string, req: string) => parsed[d.owners[req]][v][req] === 'M';
+    const parsed = Object.fromEntries(Object.entries(r.v).map(([role, s]) => [role, parse(s)]));
+    const ownerOk = (v: string, req: string) => parsed[D.owners[req]][v][req] === 'M';
     const blocked = Object.fromEntries(vendors.map((v) => [v, REQ.filter((q) => !ownerOk(v, q))]));
     const eligible = vendors.filter((v) => blocked[v].length === 0);
     const eb = parsed.economic_buyer;
     const ebEligible = new Set(vendors.filter((v) => REQ.every((q) => eb[v][q] !== 'N')));
-    return { r, vendors, blocked, decision: tallyDecision(r.votes, eligible, ebEligible) };
+    const support = Object.values(r.votes).filter((x) => x === target).length;
+    return { r, vendors, blocked, support, decision: tallyDecision(r.votes, eligible, ebEligible) };
   });
 }
 
-const a = score(A);
-const b = score(B);
+const A = { experiment: 'before (original page)' };
+const B = { experiment: 'after (page + proof)', variant: D.variant };
+const a = score(D.arms.before.runs);
+const b = score(D.arms.after.runs);
 const vendors = a[0].vendors;
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const cell = (k: number, n: number) => {
@@ -101,8 +101,10 @@ line(`| ${target} clears every requirement owner | ${cell(elA, a.length)} | ${ce
 for (const req of REQ) {
   const ka = a.filter((x) => x.blocked[target].includes(req)).length;
   const kb = b.filter((x) => x.blocked[target].includes(req)).length;
-  line(`| Blocked on ${REQ_TEXT[req] ?? req} (${A.owners[req].replace('_', ' ')}) | ${cell(ka, a.length)} | ${cell(kb, b.length)} | ${test(ka, a.length, kb, b.length)} |`);
+  line(`| Blocked on ${REQ_TEXT[req] ?? req} (${D.owners[req].replace('_', ' ')}) | ${cell(ka, a.length)} | ${cell(kb, b.length)} | ${test(ka, a.length, kb, b.length)} |`);
 }
+const avg = (xs: { support: number }[]) => (xs.reduce((s2, x) => s2 + x.support, 0) / xs.length).toFixed(1);
+line(`| Committee members voting ${target} (avg of 5) | ${avg(a)} | ${avg(b)} | |`);
 const ndA = a.filter((x) => x.decision.result === 'no_decision').length;
 const ndB = b.filter((x) => x.decision.result === 'no_decision').length;
 line(`| Committee ends in no decision | ${cell(ndA, a.length)} | ${cell(ndB, b.length)} | ${test(ndA, a.length, ndB, b.length)} |`);
