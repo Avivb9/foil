@@ -207,7 +207,7 @@ export default function SparsList() {
                   >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <span className="display flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sand-900 text-[15px] font-semibold text-sand-50">{s.company.charAt(0)}</span>
+                        <span className="display flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-sand-200 bg-sand-50 text-[15px] font-semibold text-sand-700">{s.company.charAt(0)}</span>
                         <div className="min-w-0">
                           <p className="truncate font-semibold text-sand-900 group-hover:text-ember-700">{s.company}</p>
                           <p className="truncate text-xs text-sand-500">

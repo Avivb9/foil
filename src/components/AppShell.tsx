@@ -99,10 +99,10 @@ function Sidebar() {
   const loc = useLocation();
 
   return (
-    <aside className="no-print flex w-[68px] shrink-0 flex-col border-r border-sand-800 bg-sand-950 text-sand-300 lg:w-60">
+    <aside className="no-print flex w-[68px] shrink-0 flex-col border-r border-sand-200 bg-sand-50 text-sand-600 lg:w-60">
       <div className="flex h-14 items-center px-4 lg:px-5">
         <span className="hidden lg:block">
-          <Logo dark />
+          <Logo />
         </span>
         <span className="lg:hidden">
           <LogoMark />
@@ -123,21 +123,20 @@ function Sidebar() {
                 const active = isActive || settingsActive || sparActive;
                 return cx(
                   'group relative flex h-9 items-center justify-center gap-3 rounded-lg px-2.5 text-[13.5px] font-medium transition lg:justify-start',
-                  active ? 'bg-white/[0.08] text-white' : 'text-sand-400 hover:bg-white/[0.04] hover:text-sand-100',
+                  active ? 'bg-white text-sand-900 shadow-card ring-1 ring-sand-200' : 'text-sand-600 hover:bg-sand-100 hover:text-sand-900',
                 );
               }}
             >
-              {({ isActive }) => {
-                const active = isActive || settingsActive || sparActive;
+              {() => {
                 return (
                   <>
-                    {active && <motion.span layoutId="nav-active" className="absolute left-0 top-2 h-5 w-[3px] rounded-r-full bg-ember-500" />}
+                    
                     <span className={cx('flex h-5 w-5 items-center justify-center', isNew && 'rounded-md bg-ember-500 text-white')}>
                       <Icon className={isNew ? 'h-3.5 w-3.5' : 'h-[17px] w-[17px]'} />
                     </span>
                     <span className="hidden flex-1 lg:block">{label}</span>
-                    {to === '/' && <span className="hidden text-xs tabular-nums text-sand-500 lg:block">{sparCount}</span>}
-                    {to === '/reports' && <span className="hidden text-xs tabular-nums text-sand-500 lg:block">{reportCount}</span>}
+                    {to === '/' && <span className="hidden text-xs tabular-nums text-sand-400 lg:block">{sparCount}</span>}
+                    {to === '/reports' && <span className="hidden text-xs tabular-nums text-sand-400 lg:block">{reportCount}</span>}
                   </>
                 );
               }}
@@ -147,20 +146,20 @@ function Sidebar() {
       </nav>
 
       <div className="space-y-2 p-3">
-        <NavLink to="/settings/billing" className="hidden rounded-xl border border-white/[0.07] bg-white/[0.03] p-3 transition hover:bg-white/[0.06] lg:block">
+        <NavLink to="/settings/billing" className="hidden rounded-xl border border-sand-200 bg-white p-3 shadow-card transition hover:border-sand-300 lg:block">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-sand-200">Team plan</span>
+            <span className="font-medium text-sand-900">Team plan</span>
             <span className="text-sand-500">{members} seats</span>
           </div>
-          <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full w-[38%] rounded-full bg-gradient-to-r from-ember-600 to-ember-400" />
+          <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-sand-100">
+            <div className="h-full w-[38%] rounded-full bg-ember-500" />
           </div>
           <p className="mt-1.5 text-[11px] text-sand-500">38 of 100 spar runs this month</p>
         </NavLink>
         <button
           onClick={openIntro}
           title="About Foil"
-          className="flex h-9 w-full items-center justify-center gap-3 rounded-lg px-2.5 text-[13px] text-sand-400 transition hover:bg-white/[0.04] hover:text-sand-100 lg:justify-start"
+          className="flex h-9 w-full items-center justify-center gap-3 rounded-lg px-2.5 text-[13px] text-sand-600 transition hover:bg-sand-100 hover:text-sand-900 lg:justify-start"
         >
           <BookOpen className="h-4 w-4" />
           <span className="hidden lg:block">About Foil</span>
@@ -182,7 +181,7 @@ function Topbar() {
   const [createWs, setCreateWs] = useState(false);
 
   return (
-    <header className="no-print flex h-14 shrink-0 items-center gap-3 border-b border-sand-200/80 bg-[#f6f2ea]/90 px-4 backdrop-blur sm:px-6">
+    <header className="no-print flex h-14 shrink-0 items-center gap-3 border-b border-sand-200/80 bg-white px-4 sm:px-6">
       <Menu
         width="w-64"
         trigger={({ toggle, open }) => (
@@ -224,7 +223,7 @@ function Topbar() {
           width="w-64"
           header={
             <div className="flex items-center gap-3 border-b border-sand-200/80 px-2.5 pb-3 pt-2">
-              <Avatar name={profile.name} size={36} color="#c2410c" />
+              <Avatar name={profile.name} size={36} color="#2748e0" />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-sand-900">{profile.name}</p>
                 <p className="truncate text-xs text-sand-500">{profile.title} · {workspaceName}</p>
@@ -233,7 +232,7 @@ function Topbar() {
           }
           trigger={({ toggle, open }) => (
             <button onClick={toggle} aria-expanded={open} aria-label="User menu" className="flex items-center gap-2 rounded-lg p-1 pr-2 transition hover:bg-sand-200/60">
-              <Avatar name={profile.name} size={28} color="#c2410c" />
+              <Avatar name={profile.name} size={28} color="#2748e0" />
               <span className="hidden text-left leading-tight lg:block">
                 <span className="block text-[13px] font-semibold text-sand-900">{profile.name}</span>
                 <span className="block text-[11px] text-sand-500">{profile.title}</span>
@@ -341,7 +340,7 @@ function NotificationBell() {
       >
         <Bell className="h-[18px] w-[18px]" />
         {unread > 0 && (
-          <span className="absolute right-1.5 top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-ember-500 px-1 text-[10px] font-bold text-white ring-2 ring-[#f6f2ea]">
+          <span className="absolute right-1.5 top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-ember-500 px-1 text-[10px] font-bold text-white ring-2 ring-[#f8f9fb]">
             {unread}
           </span>
         )}
@@ -353,7 +352,7 @@ function NotificationBell() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.12 }}
-            className="absolute right-0 z-50 mt-1.5 w-[360px] overflow-hidden rounded-xl border border-sand-200 bg-[#fffdf9] shadow-lift"
+            className="absolute right-0 z-50 mt-1.5 w-[360px] overflow-hidden rounded-xl border border-sand-200 bg-[#ffffff] shadow-lift"
           >
             <div className="flex items-center justify-between border-b border-sand-200/80 px-4 py-3">
               <p className="text-sm font-semibold">Notifications</p>

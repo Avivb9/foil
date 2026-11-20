@@ -147,7 +147,7 @@ export function RewritePanel({ company, fields, mode, weights, autoStart, onAppl
             <Stat label="Words removed" value={stats.removed} tone="text-red-600" />
             <Stat label="Words added" value={stats.added} tone="text-emerald-600" />
             <Stat label="Gaps to fill" value={result.placeholders} tone="text-amber-700" />
-            <div className="bg-[#fffdf9] px-5 py-3">
+            <div className="bg-[#ffffff] px-5 py-3">
               <p className="text-[11px] font-medium uppercase tracking-wide text-sand-500">Projected score</p>
               <p className="mt-0.5 flex items-center gap-2 text-lg font-semibold tabular-nums">
                 {before.overall} <ArrowRight className="h-3.5 w-3.5 text-sand-400" /> {after.overall}
@@ -243,7 +243,7 @@ export function RewritePanel({ company, fields, mode, weights, autoStart, onAppl
 
 function Stat({ label, value, tone }: { label: string; value: number; tone: string }) {
   return (
-    <div className="bg-[#fffdf9] px-5 py-3">
+    <div className="bg-[#ffffff] px-5 py-3">
       <p className="text-[11px] font-medium uppercase tracking-wide text-sand-500">{label}</p>
       <p className={cx('mt-0.5 text-lg font-semibold tabular-nums', tone)}>{value}</p>
     </div>

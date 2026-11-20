@@ -4,10 +4,10 @@ import { cx } from './ui';
 export function LogoMark({ className, size = 28 }: { className?: string; size?: number }) {
   return (
     <svg viewBox="0 0 32 32" width={size} height={size} className={className} aria-hidden>
-      <rect width="32" height="32" rx="8" fill="#221e19" />
-      <path d="M9 23 L23 9" stroke="#f45412" strokeWidth="3" strokeLinecap="round" />
-      <path d="M19 9h4v4" stroke="#f45412" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <circle cx="10" cy="22" r="2.4" fill="#fbf9f6" />
+      <rect width="32" height="32" rx="8" fill="#101828" />
+      <path d="M9 23 L23 9" stroke="#6088ff" strokeWidth="3" strokeLinecap="round" />
+      <path d="M19 9h4v4" stroke="#6088ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <circle cx="10" cy="22" r="2.4" fill="#ffffff" />
     </svg>
   );
 }

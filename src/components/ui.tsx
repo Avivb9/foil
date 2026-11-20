@@ -112,7 +112,7 @@ export function Avatar({ name, color, size = 32, className, ring }: { name: stri
   const bg = color ?? colorFor(name);
   return (
     <span
-      className={cx('inline-flex shrink-0 select-none items-center justify-center rounded-full font-semibold text-white', ring && 'ring-2 ring-[#fffdf9]', className)}
+      className={cx('inline-flex shrink-0 select-none items-center justify-center rounded-full font-semibold text-white', ring && 'ring-2 ring-[#ffffff]', className)}
       style={{ width: size, height: size, fontSize: Math.max(10, size * 0.36), background: `linear-gradient(145deg, ${bg}, ${shade(bg)})` }}
       aria-hidden
     >
@@ -183,7 +183,7 @@ export function Modal({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-            className={cx('relative w-full rounded-2xl border border-sand-200 bg-[#fffdf9] shadow-lift', width)}
+            className={cx('relative w-full rounded-2xl border border-sand-200 bg-[#ffffff] shadow-lift', width)}
           >
             <div className="flex items-start justify-between gap-4 px-6 pb-2 pt-5">
               <div>
@@ -260,7 +260,7 @@ export function Menu({
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.12 }}
             className={cx(
-              'absolute z-50 mt-1.5 overflow-hidden rounded-xl border border-sand-200 bg-[#fffdf9] p-1 shadow-lift',
+              'absolute z-50 mt-1.5 overflow-hidden rounded-xl border border-sand-200 bg-[#ffffff] p-1 shadow-lift',
               align === 'right' ? 'right-0 origin-top-right' : 'left-0 origin-top-left',
               width,
             )}

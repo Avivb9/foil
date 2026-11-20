@@ -9,7 +9,7 @@ import { cx } from '../ui';
 
 export const COMPONENT_COLORS: Record<ComponentKey, { text: string; bg: string; line: string; hex: string }> = {
   alternatives: { text: 'text-violet-700', bg: 'bg-violet-500', line: 'decoration-violet-400', hex: '#8b5cf6' },
-  unique: { text: 'text-ember-700', bg: 'bg-ember-500', line: 'decoration-ember-400', hex: '#f45412' },
+  unique: { text: 'text-ember-700', bg: 'bg-ember-500', line: 'decoration-ember-400', hex: '#3b63f6' },
   value: { text: 'text-emerald-700', bg: 'bg-emerald-500', line: 'decoration-emerald-400', hex: '#10b981' },
   target: { text: 'text-sky-700', bg: 'bg-sky-500', line: 'decoration-sky-400', hex: '#0ea5e9' },
   category: { text: 'text-amber-700', bg: 'bg-amber-500', line: 'decoration-amber-400', hex: '#f59e0b' },
@@ -53,7 +53,7 @@ export function ScoreRing({ score, size = 132, from, label = true, stroke = 10 }
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#ebe4d8" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e4e7ec" strokeWidth={stroke} />
         <motion.circle
           cx={size / 2}
           cy={size / 2}

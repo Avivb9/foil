@@ -107,7 +107,7 @@ function ProfileTab() {
       }
     >
       <div className="mb-6 flex items-center gap-4">
-        <Avatar name={form.name || 'A B'} size={56} color="#c2410c" />
+        <Avatar name={form.name || 'A B'} size={56} color="#2748e0" />
         <div>
           <p className="font-semibold">{form.name || 'Your name'}</p>
           <p className="text-sm text-sand-500">
@@ -202,7 +202,7 @@ function WorkspaceTab() {
             const isMe = m.email === profile.email || m.name === profile.name;
             return (
               <li key={m.id} className="flex flex-wrap items-center gap-3 px-6 py-3">
-                <Avatar name={m.name} size={34} color={isMe ? '#c2410c' : undefined} />
+                <Avatar name={m.name} size={34} color={isMe ? '#2748e0' : undefined} />
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-2 text-sm font-medium">
                     {m.name}

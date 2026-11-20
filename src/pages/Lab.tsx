@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowRight, Code2 as Github } from 'lucide-react';
 import type { ReactNode } from 'react';
 import lab from '../data/lab.json';
+import { Logo } from '../components/Logo';
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const ROLE: Record<string, string> = {
@@ -48,7 +49,21 @@ export default function Lab() {
   const [gem, groq] = reliability;
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] text-neutral-800">
+    <div className="min-h-screen bg-[#f8f9fb] text-neutral-800">
+      <nav className="sticky top-0 z-20 border-b border-neutral-200/80 bg-white/85 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
+          <a href="/lab" aria-label="Foil lab home">
+            <Logo />
+          </a>
+          <div className="flex items-center gap-1 text-sm">
+            <a href="#result" className="hidden rounded-md px-3 py-1.5 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 sm:block">Results</a>
+            <a href={REPO} className="hidden rounded-md px-3 py-1.5 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 sm:block">GitHub</a>
+            <a href="/" className="ml-2 inline-flex items-center gap-1.5 rounded-lg bg-ember-500 px-3.5 py-1.5 font-medium text-white shadow-card hover:bg-ember-600">
+              Open the app <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        </div>
+      </nav>
       <div className="mx-auto max-w-5xl px-6">
         {/* Hero */}
         <header className="pb-14 pt-16">
@@ -66,17 +81,17 @@ export default function Lab() {
               [`$${totals.costUsd}`, 'spent (free tiers)'],
               [pct(judgeEval.gemini.agreement), 'agreement with a PMM'],
             ].map(([n, l]) => (
-              <div key={l} className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
+              <div key={l} className="rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-card">
                 <div className="font-display text-2xl text-neutral-900">{n}</div>
                 <div className="text-xs text-neutral-500">{l}</div>
               </div>
             ))}
           </div>
           <div className="mt-8 flex flex-wrap gap-4 text-sm">
-            <a href="#result" className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700">
+            <a href="#result" className="inline-flex items-center gap-1.5 rounded-lg bg-ember-500 px-4 py-2 font-medium text-white shadow-card hover:bg-ember-600">
               See the result <ArrowDown size={15} />
             </a>
-            <a href={REPO} className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 px-4 py-2 font-medium hover:border-neutral-500">
+            <a href={REPO} className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-4 py-2 font-medium shadow-card hover:border-neutral-300">
               <Github size={15} /> Code, data and evals
             </a>
           </div>

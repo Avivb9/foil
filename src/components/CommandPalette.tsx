@@ -135,7 +135,7 @@ export function CommandPalette() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-sand-200 bg-[#fffdf9] shadow-lift"
+            className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-sand-200 bg-[#ffffff] shadow-lift"
             role="dialog"
             aria-label="Command palette"
           >

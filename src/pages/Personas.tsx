@@ -133,7 +133,7 @@ export default function Personas() {
                   <span>Lens · {LENSES[p.lens].label}</span>
                   <span className="normal-case tracking-normal text-sand-400">attacks {LENSES[p.lens].attacks.toLowerCase()}</span>
                 </p>
-                <p className="display mt-1 text-[15px] italic leading-snug text-sand-800">“{LENSES[p.lens].question}”</p>
+                <p className="mt-1 text-[15px] leading-snug text-sand-800">“{LENSES[p.lens].question}”</p>
               </div>
               <p className="mt-3 flex-1 text-[13px] leading-relaxed text-sand-600">{p.bio}</p>
               <div className="mt-4 flex items-center gap-1 border-t border-sand-200/80 pt-3">

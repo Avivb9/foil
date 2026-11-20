@@ -17,13 +17,13 @@ export function ScoreRadar({ result, previous, height = 260 }: { result: ScoreRe
     <div style={{ height }} className="w-full" role="img" aria-label={`Radar chart: ${data.map((d) => `${d.key} ${d.score}`).join(', ')}`}>
       <ResponsiveContainer>
         <RadarChart data={data} outerRadius="72%" margin={{ top: 8, right: 24, bottom: 8, left: 24 }}>
-          <PolarGrid stroke="#e4dccd" />
-          <PolarAngleAxis dataKey="key" tick={{ fill: '#5a5143', fontSize: 12, fontWeight: 500 }} />
+          <PolarGrid stroke="#e4e7ec" />
+          <PolarAngleAxis dataKey="key" tick={{ fill: '#344054', fontSize: 12, fontWeight: 500 }} />
           <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-          {previous && <Radar name="Previous run" dataKey="prev" stroke="#b9ab94" strokeDasharray="4 3" fill="#b9ab94" fillOpacity={0.08} isAnimationActive />}
-          <Radar name="This run" dataKey="score" stroke="#f45412" strokeWidth={2} fill="#f45412" fillOpacity={0.18} isAnimationActive animationDuration={900} />
+          {previous && <Radar name="Previous run" dataKey="prev" stroke="#98a2b3" strokeDasharray="4 3" fill="#98a2b3" fillOpacity={0.08} isAnimationActive />}
+          <Radar name="This run" dataKey="score" stroke="#3b63f6" strokeWidth={2} fill="#3b63f6" fillOpacity={0.18} isAnimationActive animationDuration={900} />
           <Tooltip
-            contentStyle={{ borderRadius: 10, border: '1px solid #ebe4d8', fontSize: 12, boxShadow: '0 8px 30px -8px rgba(34,30,25,0.18)' }}
+            contentStyle={{ borderRadius: 10, border: '1px solid #e4e7ec', fontSize: 12, boxShadow: '0 8px 30px -8px rgba(16,24,40,0.16)' }}
             formatter={(v: number, name: string) => [`${v}/100`, name]}
           />
         </RadarChart>

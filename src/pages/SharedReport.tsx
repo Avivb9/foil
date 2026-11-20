@@ -14,8 +14,8 @@ export default function SharedReport() {
   const workspace = useApp((s) => s.workspaceName);
 
   return (
-    <div className="min-h-screen bg-[#f6f2ea]">
-      <header className="no-print sticky top-0 z-20 border-b border-sand-200/80 bg-[#f6f2ea]/90 backdrop-blur">
+    <div className="min-h-screen bg-[#f8f9fb]">
+      <header className="no-print sticky top-0 z-20 border-b border-sand-200/80 bg-[#f8f9fb]/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-[1040px] items-center justify-between gap-3 px-4 sm:px-8">
           <div className="flex items-center gap-3">
             <Logo />

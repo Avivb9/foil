@@ -46,9 +46,9 @@ export function IntroOverlay() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.4, ease: 'easeOut' }}
-              className="absolute -right-40 -top-40 h-[620px] w-[620px] rounded-full bg-ember-600/25 blur-[120px]"
+              className="absolute -right-40 -top-40 h-[620px] w-[620px] rounded-full bg-ember-600/30 blur-[120px]"
             />
-            <div className="absolute -bottom-60 -left-40 h-[520px] w-[520px] rounded-full bg-amber-700/10 blur-[120px]" />
+            <div className="absolute -bottom-60 -left-40 h-[520px] w-[520px] rounded-full bg-indigo-500/10 blur-[120px]" />
             <div className="grain absolute inset-0 opacity-40" />
           </div>
 
@@ -66,14 +66,14 @@ export function IntroOverlay() {
             {/* hero */}
             <div className="mt-16 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
               <motion.div custom={0} variants={rise} initial="hidden" animate="show">
-                <LogoMark size={88} className="rounded-2xl shadow-[0_20px_60px_-15px_rgba(244,84,18,0.5)]" />
+                <LogoMark size={88} className="rounded-2xl shadow-[0_20px_60px_-15px_rgba(59,99,246,0.55)]" />
               </motion.div>
               <div>
                 <motion.h1 custom={1} variants={rise} initial="hidden" animate="show" className="display text-[80px] font-semibold leading-[0.9] text-sand-50 sm:text-[104px]">
                   {INTRO.title}
                   <span className="text-ember-500">.</span>
                 </motion.h1>
-                <motion.p custom={2} variants={rise} initial="hidden" animate="show" className="display mt-3 max-w-2xl text-3xl italic leading-tight text-sand-200 sm:text-[36px]">
+                <motion.p custom={2} variants={rise} initial="hidden" animate="show" className="display mt-3 max-w-2xl text-3xl font-medium leading-tight tracking-[-0.02em] text-sand-200 sm:text-[36px]">
                   {INTRO.tagline}
                 </motion.p>
               </div>
@@ -141,7 +141,7 @@ export function IntroOverlay() {
               <button
                 onClick={closeIntro}
                 autoFocus
-                className="group inline-flex h-12 shrink-0 items-center gap-2 rounded-xl bg-ember-500 px-6 text-[15px] font-semibold text-white shadow-[0_8px_30px_-6px_rgba(244,84,18,0.6)] transition hover:bg-ember-400 focus-visible:ring-offset-sand-950"
+                className="group inline-flex h-12 shrink-0 items-center gap-2 rounded-xl bg-ember-500 px-6 text-[15px] font-semibold text-white shadow-[0_8px_30px_-6px_rgba(59,99,246,0.55)] transition hover:bg-ember-400 focus-visible:ring-offset-sand-950"
               >
                 {INTRO.cta}
                 <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />

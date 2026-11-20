@@ -33,7 +33,7 @@ export const INTRO = {
     body: 'You’re exploring a demo version of Foil with a sample workspace (Northbeam) and example spars. Try the Kestrel example, run a spar, then apply the rewrite. Anything you enter stays in your browser.',
   },
 
-  footer: { prefix: 'Designed and built by Aviv Braun', site: 'avivbraun.com', url: 'https://avivbraun.com' },
+  footer: { prefix: 'Designed and built by Aviv Braun', site: 'avivbraun.com', url: 'https://avivbraun.com/?utm_source=foil&utm_medium=portfolio_tool&utm_campaign=job_search&utm_content=intro_footer' },
 
   cta: 'Explore the demo',
   skip: 'Skip intro',
